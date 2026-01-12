@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hobbs House Bakery – Product Balance Framework</title>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#101824;
+      --muted:#9db0c6;
+      --text:#eef4fb;
+      --line:#223349;
+
+      --brand:#f26a21;      /* Hobbs orange */
+      --brand2:#ff8a3d;
+      --brand3:#ffb27a;
+
+      --good:#59d18a;
+      --warn:#ffd166;
+      --bad:#ff6b6b;
+
+      --shadow: 0 14px 55px rgba(0,0,0,.45);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 8%, rgba(242,106,33,.30) 0%, transparent 55%),
+        radial-gradient(1000px 650px at 90% 10%, rgba(255,138,61,.18) 0%, transparent 50%),
+        radial-gradient(900px 600px at 70% 85%, rgba(255,178,122,.10) 0%, transparent 55%),
+        var(--bg);
+    }
+
+    header{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 18px 10px;
+      display:flex;
+      gap:14px;
+      align-items:flex-end;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .brandBlock{
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+    }
+
+    .mark{
+      width: 180px;
+      height: auto;
+      max-height: 56px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+    }
+    @media (max-width: 520px){
+      .mark{ width: 155px; }
+    }
+
+    h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing: .2px;
+    }
+    header p{
+      margin:4px 0 0 0;
+      color: var(--muted);
+      max-width: 88ch;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .topActions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding: 12px 18px 46px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 1040px){
+      .wrap{
+        grid-template-columns: 460px 1fr;
+        align-items:start;
+      }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2{
+      margin:0 0 10px 0;
+      font-size: 15px;
+      color:#ffe7d7;
+      letter-spacing:.2px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .tab{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.10);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-weight: 650;
+      font-size: 13px;
+    }
+    .tab.active{
+      border-color: rgba(242,106,33,.65);
+      background: rgba(242,106,33,.16);
+      box-shadow: 0 10px 30px rgba(242,106,33,.12);
+    }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 12px 0 6px;
+    }
+
+    input[type="text"], textarea, select{
+      width:100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      color: var(--text);
+      padding: 10px 12px;
+      outline:none;
+      font-size: 13px;
+    }
+    textarea{ min-height: 80px; resize: vertical; }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+    .row .value{
+      width: 34px;
+      text-align:right;
+      font-variant-numeric: tabular-nums;
+      color:#ffe7d7;
+      font-weight:700;
+    }
+    input[type="range"]{
+      width:100%;
+      accent-color: var(--brand);
+    }
+
+    .hint{
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(157,176,198,.95);
+      line-height: 1.35;
+    }
+
+    .divider{
+      height: 1px;
+      background: rgba(255,255,255,.09);
+      margin: 12px 0;
+    }
+
+    .btn{
+      border:0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, var(--brand) 0%, var(--brand2) 60%, var(--brand3) 100%);
+      color:#1b0b02;
+      box-shadow: 0 12px 28px rgba(242,106,33,.22);
+    }
+    .btn.ghost{
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.18);
+      color: var(--text);
+    }
+    .btn.small{
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 12px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+
+    .gridRight{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .chartWrap{
+      padding: 10px 12px 14px;
+    }
+    canvas{ width:100% !important; height: 380px !important; }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .chip{
+      font-size:12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      color: #ffe7d7;
+    }
+    .chip.good{ border-color: rgba(89,209,138,.55); color: #c6f3da; }
+    .chip.warn{ border-color: rgba(255,209,102,.55); color: #ffecc2; }
+    .chip.bad{ border-color: rgba(255,107,107,.60); color: #ffd5d5; }
+
+    .out h3{
+      margin: 0 0 8px 0;
+      font-size: 13px;
+      color:#ffe7d7;
+    }
+    .out p, .out li{
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+    .out ul{ margin: 8px 0 0 18px; }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 1040px){
+      .twoCol{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .miniTitle{
+      font-size: 12px;
+      color: rgba(255,231,215,.9);
+      font-weight: 750;
+      letter-spacing: .2px;
+      margin-bottom: 4px;
+    }
+
+    .footerNote{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(157,176,198,.92);
+    }
+
+    .hidden{ display:none !important; }
+
+    @media print{
+      body{ background: #fff; color:#000; }
+      .card{ box-shadow:none; }
+      .btn, .tabs, .topActions{ display:none !important; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="brandBlock">
+    <!-- Put a logo PNG next to this file named: logo.png -->
+    <img class="mark" src="logo.png" alt="Hobbs House Bakery" />
+    <div>
+      <h1>Hobbs House Bakery – Product Balance Framework</h1>
+      <p>Score a product across five lenses, apply the Brand Gate, record the decision, and generate a spider chart plus plain-English next steps. This is a decision lens, not a nutrition claims tool.</p>
+    </div>
+  </div>
+
+  <div class="topActions">
+    <button class="btn ghost small" id="btnSaveLocal">Save</button>
+    <button class="btn ghost small" id="btnLoadLocal">Load</button>
+    <button class="btn ghost small" id="btnExportJSON">Export JSON</button>
+    <button class="btn ghost small" id="btnImportJSON">Import JSON</button>
+    <input type="file" id="jsonFile" accept="application/json" class="hidden" />
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- LEFT: Inputs -->
+  <section class="card" aria-label="Inputs">
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab active" id="tabSingle" role="tab" aria-selected="true">Single product</button>
+      <button class="tab" id="tabCompare" role="tab" aria-selected="false">Compare two products</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div style="flex:1">
+        <label for="productType">Product type</label>
+        <select id="productType">
+          <option value="retail_loaf">Retail loaf</option>
+          <option value="hospitality_bun">Hospitality bun / roll</option>
+          <option value="reseller_line">Reseller line</option>
+          <option value="sweet">Sweet / confectionery</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="hint">This changes the “next steps” guidance to suit what the product is meant to do.</div>
+      </div>
+    </div>
+
+    <div id="singleInputs">
+      <label for="productName">Product name</label>
+      <input id="productName" type="text" placeholder="e.g. Ultimate Burger Bun (clean label)" />
+
+      <label for="strategicRole">Strategic role</label>
+      <select id="strategicRole">
+        <option value="flagship">Flagship (sets the standard)</option>
+        <option value="core">Core range</option>
+        <option value="customer_specific">Customer-specific / bespoke</option>
+        <option value="commercial_enabler">Commercial enabler (volume / margin support)</option>
+        <option value="legacy_review">Legacy (keep under review)</option>
+      </select>
+      <div class="hint">Helps us see the portfolio, not just the product.</div>
+
+      <label for="decision">Decision</label>
+      <select id="decision">
+        <option value="proceed">Proceed as is</option>
+        <option value="proceed_conditions">Proceed with conditions</option>
+        <option value="rework">Rework</option>
+        <option value="park">Park / say no (for now)</option>
+      </select>
+
+      <label for="direction">Direction of travel</label>
+      <select id="direction">
+        <option value="improving">Improving</option>
+        <option value="stable">Stable</option>
+        <option value="declining">Declining</option>
+      </select>
+
+      <div class="hint">
+        <strong>What this means:</strong> Compared to where this product was 12–24 months ago, are we intentionally moving it closer to our view of good food — or not?<br><br>
+        <strong>Improving</strong> = specific changes already made or agreed (not just hoped for).<br>
+        <strong>Stable</strong> = deliberately held as it is, for a clear reason.<br>
+        <strong>Declining</strong> = a known compromise or legacy product we’re not investing further in.<br><br>
+        Choose based on <em>actions taken or agreed</em>, not aspirations.
+      </div>
+
+      <div class="divider"></div>
+
+      <label for="ingredients">Ingredients (at time of review)</label>
+      <textarea id="ingredients" placeholder="Keep it simple. e.g. Wheat flour, water, butter, yeast, sugar, salt"></textarea>
+      <div class="hint">This isn’t a legal label — it’s a record so the PDF makes sense later.</div>
+
+      <label for="processNotes">Process notes (one line)</label>
+      <input id="processNotes" type="text" placeholder="e.g. straight dough / overnight ferment / sourdough 24h bulk" />
+
+      <div class="divider"></div>
+
+      <label>1) Customer Need & Insight</label>
+      <div class="row">
+        <input id="sCustomer" type="range" min="1" max="5" step="1" value="3" />
+        <div class="value" id="vCustomer">3</div>
+      </div>
+      <div class="hint">Is the need clear and real? Are we solving a problem or chasing noise?</div>
+
+      <label>2) Operational Fit</label>
+      <div class="row">
+        <input id="sOperational" type="range" min="1" max="5" step="1" value="3" />
+        <div class="value" id="vOperational">3</div>
+      </div>
+      <div class="hint">Can we make it well and consistently? Does it flow through the bakery?</div>
+
+      <label>3) Food Quality & Digestibility</label>
+      <div class="row">
+        <input id="sQuality" type="range" min="1" max="5" step="1" value="3" />
+        <div class="value" id="vQuality">3</div>
+      </div>
+      <div class="hint">Fermentation time/method, wholegrain diversity, fats used, degree of processing (directional).</div>
+
+      <label>4) Resource Impact</label>
+      <div class="row">
+        <input id="sResource" type="range" min="1" max="5" step="1" value="3" />
+        <div class="value" id="vResource">3</div>
+      </div>
+      <div class="hint">Packaging necessity/type, shelf life vs waste, ingredient efficiency.</div>
+
+      <label>5) Commercial Strength</label>
+      <div class="row">
+        <input id="sCommercial" type="range" min="1" max="5" step="1" value="3" />
+        <div class="value" id="vCommercial">3</div>
+      </div>
+      <div class="hint">Margin relative to effort, cost volatility, scalability.</div>
+
+      <div class="divider"></div>
+
+      <label for="brandGate">Brand Gate: would we happily explain this product to a customer, face-to-face?</label>
+      <select id="brandGate">
+        <option value="yes">Yes – proud to put our name to it</option>
+        <option value="conditions">Yes – with conditions (needs tweaks)</option>
+        <option value="no">No – not something we’d stand behind</option>
+      </select>
+
+      <label for="conditions">Conditions / required changes (if any)</label>
+      <textarea id="conditions" placeholder="e.g. Swap palm, longer ferment, simplify packaging, improve spec, etc."></textarea>
+
+      <label for="notes">Notes (brief, story, customer context)</label>
+      <textarea id="notes" placeholder="Anything useful: customer brief, target use case, operational constraints, etc."></textarea>
+
+      <div class="divider"></div>
+
+      <label>Benchmark overlay</label>
+      <div class="row" style="gap:12px; align-items:flex-start;">
+        <div style="flex:1">
+          <label style="margin:0; color: var(--muted); font-size:12px;">
+            <input id="showBenchmark" type="checkbox" style="transform: translateY(1px);" />
+            Show “Best of Hobbs House Bakery” overlay
+          </label>
+          <div class="hint">A reference profile to anchor standards (edit if you want).</div>
+        </div>
+      </div>
+
+      <div id="benchmarkFields" class="hidden">
+        <div class="twoCol">
+          <div>
+            <label>Benchmark scores (1–5)</label>
+            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Customer</span><input id="bmkCustomer" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkCustomer">5</div></div>
+            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Operational</span><input id="bmkOperational" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkOperational">5</div></div>
+            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Quality</span><input id="bmkQuality" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkQuality">5</div></div>
+            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Resource</span><input id="bmkResource" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkResource">5</div></div>
+            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Commercial</span><input id="bmkCommercial" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkCommercial">5</div></div>
+          </div>
+          <div>
+            <label for="benchmarkName">Benchmark name</label>
+            <input id="benchmarkName" type="text" value="Best of Hobbs House Bakery" />
+            <div class="hint">If you want this to be a specific product (e.g. a flagship sourdough), name it here.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnGenerate">Generate chart & insights</button>
+        <button class="btn ghost" id="btnReset">Reset</button>
+      </div>
+
+      <div class="footerNote">Scoring guide: 1 = weak, 3 = acceptable, 5 = genuinely strong.</div>
+    </div>
+
+    <div id="compareInputs" class="hidden">
+      <div class="twoCol">
+        <div>
+          <div class="miniTitle">Product A</div>
+          <label for="nameA">Name</label>
+          <input id="nameA" type="text" placeholder="e.g. Bun A (current)" />
+
+          <label>Customer Need & Insight</label>
+          <div class="row">
+            <input id="aCustomer" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vaCustomer">3</div>
+          </div>
+
+          <label>Operational Fit</label>
+          <div class="row">
+            <input id="aOperational" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vaOperational">3</div>
+          </div>
+
+          <label>Food Quality & Digestibility</label>
+          <div class="row">
+            <input id="aQuality" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vaQuality">3</div>
+          </div>
+
+          <label>Resource Impact</label>
+          <div class="row">
+            <input id="aResource" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vaResource">3</div>
+          </div>
+
+          <label>Commercial Strength</label>
+          <div class="row">
+            <input id="aCommercial" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vaCommercial">3</div>
+          </div>
+
+          <label>Brand Gate</label>
+          <select id="aBrand">
+            <option value="yes">Yes</option>
+            <option value="conditions">Yes (conditions)</option>
+            <option value="no">No</option>
+          </select>
+
+          <label>Notes</label>
+          <textarea id="aNotes" placeholder="Brief notes for A"></textarea>
+        </div>
+
+        <div>
+          <div class="miniTitle">Product B</div>
+          <label for="nameB">Name</label>
+          <input id="nameB" type="text" placeholder="e.g. Bun B (clean label + longer ferment)" />
+
+          <label>Customer Need & Insight</label>
+          <div class="row">
+            <input id="bCustomer" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vbCustomer">3</div>
+          </div>
+
+          <label>Operational Fit</label>
+          <div class="row">
+            <input id="bOperational" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vbOperational">3</div>
+          </div>
+
+          <label>Food Quality & Digestibility</label>
+          <div class="row">
+            <input id="bQuality" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vbQuality">3</div>
+          </div>
+
+          <label>Resource Impact</label>
+          <div class="row">
+            <input id="bResource" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vbResource">3</div>
+          </div>
+
+          <label>Commercial Strength</label>
+          <div class="row">
+            <input id="bCommercial" type="range" min="1" max="5" step="1" value="3" />
+            <div class="value" id="vbCommercial">3</div>
+          </div>
+
+          <label>Brand Gate</label>
+          <select id="bBrand">
+            <option value="yes">Yes</option>
+            <option value="conditions">Yes (conditions)</option>
+            <option value="no">No</option>
+          </select>
+
+          <label>Notes</label>
+          <textarea id="bNotes" placeholder="Brief notes for B"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnGenerateCompare">Generate comparison</button>
+        <button class="btn ghost" id="btnResetCompare">Reset</button>
+      </div>
+
+      <div class="footerNote">Tip: Use Compare to show “before/after” recipe changes (e.g. bun clean-label update).</div>
+    </div>
+  </section>
+
+  <!-- RIGHT: Outputs -->
+  <section class="gridRight">
+    <section class="card chartWrap" aria-label="Chart">
+      <div class="row" style="justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <h2 style="margin:0;">Spider chart</h2>
+        <div class="actions" style="margin:0;">
+          <button class="btn ghost small" id="btnPNG">Download PNG</button>
+          <button class="btn ghost small" id="btnPDF">Download PDF</button>
+        </div>
+      </div>
+
+      <div id="exportArea">
+        <canvas id="radarChart"></canvas>
+        <div class="chips" id="chips"></div>
+      </div>
+    </section>
+
+    <section class="card out" aria-label="Insights">
+      <h2>What this tells us</h2>
+      <div id="summary"></div>
+
+      <div class="divider"></div>
+
+      <h2>Suggested next steps</h2>
+      <div id="actions"></div>
+
+      <div class="divider"></div>
+
+      <h2>Scores</h2>
+      <div id="scoreTable"></div>
+    </section>
+
+    <section class="card out" aria-label="Notes">
+      <h2>Notes for the record</h2>
+      <div id="notesOut"></div>
+    </section>
+  </section>
+</main>
+
+<!-- Libraries (CDN). If your network blocks these, use the GitHub method or ask for an offline build. -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<script>
+  // ---------- Utilities ----------
+  const byId = (id) => document.getElementById(id);
+
+  function classifyScore(n){
+    if(n >= 4) return "strong";
+    if(n === 3) return "ok";
+    return "weak";
+  }
+
+  function brandGateLabel(v){
+    return v === "yes" ? "Yes" : (v === "no" ? "No" : "Yes (conditions)");
+  }
+
+  function decisionLabel(v){
+    return v === "proceed" ? "Proceed" :
+      (v === "proceed_conditions" ? "Proceed (conditions)" :
+      (v === "rework" ? "Rework" : "Park / say no"));
+  }
+
+  function directionLabel(v){
+    return v === "improving" ? "Improving" : (v === "declining" ? "Declining" : "Stable");
+  }
+
+  function roleLabel(v){
+    return v === "flagship" ? "Flagship" :
+      (v === "core" ? "Core range" :
+      (v === "customer_specific" ? "Customer-specific" :
+      (v === "commercial_enabler" ? "Commercial enabler" : "Legacy / review")));
+  }
+
+  // Product-type nudges
+  const typeGuidance = {
+    retail_loaf: {
+      focus: "Retail loaf focus: repeatable quality, clear story, and ‘quiet differentiators’ (fermentation time / grains) without making health claims.",
+      extra: [
+        "If it’s a core loaf, aim for consistency first; then improve quality/digestibility directionally.",
+        "Make sure the customer benefit is easy to explain in one sentence (taste, keeping quality, digestibility, craft)."
+      ]
+    },
+    hospitality_bun: {
+      focus: "Hospitality bun focus: performance and customer brief come first (softness, slicing, freeze/thaw). Improve ‘clean label’ and fermentation directionally without changing the role of the product.",
+      extra: [
+        "Keep the bun doing its job (soft, reliable, holds fillings). Improve ingredients/process around that.",
+        "Aim for ‘better not different’: longer ferment, cleaner fats, tidy-up list, but maintain texture."
+      ]
+    },
+    reseller_line: {
+      focus: "Reseller line focus: shelf life / packaging / waste and a simple range that sells. Improvements should be obvious and repeatable.",
+      extra: [
+        "Prioritise products that tell a clear story and rotate well; avoid range bloat.",
+        "Optimise pack formats and shelf life to reduce returns and waste."
+      ]
+    },
+    sweet: {
+      focus: "Sweet / confectionery focus: customer joy and quality first. Be intentional about ingredients and processing, without pretending it’s a health product.",
+      extra: [
+        "Keep claims honest: lead with craft, ingredients and indulgence, not ‘healthy’.",
+        "Where appropriate, tidy-up oils and additives, but don’t compromise the eating experience."
+      ]
+    },
+    other: {
+      focus: "General focus: be clear what the product is meant to do, then improve it directionally without overcomplicating it.",
+      extra: [
+        "If the brief is vague, fix that first (who is it for, why does it exist?).",
+        "Choose one improvement at a time so changes are understood and repeatable."
+      ]
+    }
+  };
+
+  // ---------- Dependency check ----------
+  function depsOk(){
+    const missing = [];
+    if(typeof Chart === "undefined") missing.push("Chart.js");
+    if(typeof html2canvas === "undefined") missing.push("html2canvas");
+    if(!window.jspdf || !window.jspdf.jsPDF) missing.push("jsPDF");
+    return missing;
+  }
+
+  function showDepError(missing){
+    const msg = document.createElement("div");
+    msg.style.marginTop = "10px";
+    msg.style.padding = "10px 12px";
+    msg.style.borderRadius = "12px";
+    msg.style.border = "1px solid rgba(255,107,107,.55)";
+    msg.style.background = "rgba(255,107,107,.12)";
+    msg.style.color = "#ffd5d5";
+    msg.style.fontSize = "12.5px";
+    msg.innerHTML = `<strong>Heads up:</strong> Some libraries didn't load (${missing.join(", ")}). 
+      This is usually a network/CDN block. The page will still show the form, but charts/exports may not work.
+      <br><br><strong>Fix:</strong> allow access to cdn.jsdelivr.net, or use the GitHub → Netlify method, or ask for the offline (no-CDN) build.`;
+    const chartCard = document.querySelector('[aria-label="Chart"]');
+    if(chartCard) chartCard.appendChild(msg);
+
+    const b1 = document.getElementById("btnPNG");
+    const b2 = document.getElementById("btnPDF");
+    if(b1) b1.disabled = true;
+    if(b2) b2.disabled = true;
+  }
+
+  // ---------- Slider readouts ----------
+  const singleSliders = [
+    ["sCustomer","vCustomer"], ["sOperational","vOperational"], ["sQuality","vQuality"], ["sResource","vResource"], ["sCommercial","vCommercial"]
+  ];
+  singleSliders.forEach(([s,o]) => {
+    byId(s).addEventListener("input", () => byId(o).textContent = byId(s).value);
+    byId(o).textContent = byId(s).value;
+  });
+
+  const compareSliders = [
+    ["aCustomer","vaCustomer"], ["aOperational","vaOperational"], ["aQuality","vaQuality"], ["aResource","vaResource"], ["aCommercial","vaCommercial"],
+    ["bCustomer","vbCustomer"], ["bOperational","vbOperational"], ["bQuality","vbQuality"], ["bResource","vbResource"], ["bCommercial","vbCommercial"]
+  ];
+  compareSliders.forEach(([s,o]) => {
+    byId(s).addEventListener("input", () => byId(o).textContent = byId(s).value);
+    byId(o).textContent = byId(s).value;
+  });
+
+  // Benchmark sliders + toggle
+  const bmkSliders = [
+    ["bmkCustomer","vbmkCustomer"], ["bmkOperational","vbmkOperational"], ["bmkQuality","vbmkQuality"], ["bmkResource","vbmkResource"], ["bmkCommercial","vbmkCommercial"]
+  ];
+  bmkSliders.forEach(([s,o]) => {
+    const el = byId(s);
+    if(!el) return;
+    el.addEventListener("input", () => { byId(o).textContent = el.value; if(mode === "single") renderSingle(); });
+    byId(o).textContent = el.value;
+  });
+
+  function syncBenchmarkVisibility(){
+    const cb = byId("showBenchmark");
+    const box = byId("benchmarkFields");
+    if(!cb || !box) return;
+    box.classList.toggle("hidden", !cb.checked);
+  }
+  if(byId("showBenchmark")){
+    byId("showBenchmark").addEventListener("change", () => {
+      syncBenchmarkVisibility();
+      if(mode === "single") renderSingle();
+    });
+    syncBenchmarkVisibility();
+  }
+
+  // ---------- Chart ----------
+  const ctx = byId("radarChart");
+  let chart;
+
+  function buildChartSingle(data){
+    const labels = ["Customer","Operational","Quality","Resource","Commercial"];
+    const values = [data.customer, data.operational, data.quality, data.resource, data.commercial];
+
+    const datasets = [{
+      label: data.productName || "Product profile",
+      data: values,
+      borderWidth: 2,
+      pointRadius: 3,
+      fill: true
+    }];
+
+    if(data.showBenchmark){
+      datasets.push({
+        label: data.benchmarkName || "Best of Hobbs House Bakery",
+        data: [data.bmkCustomer, data.bmkOperational, data.bmkQuality, data.bmkResource, data.bmkCommercial],
+        borderWidth: 2,
+        pointRadius: 2,
+        fill: false,
+        borderDash: [6, 4]
+      });
+    }
+
+    if(chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type:"radar",
+      data:{ labels, datasets },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{
+          r:{
+            min:0, max:5,
+            ticks:{ stepSize:1, showLabelBackdrop:false },
+            grid:{ circular:true }
+          }
+        },
+        plugins:{ legend:{ display:true } }
+      }
+    });
+  }
+
+  function buildChartCompare(a,b){
+    const labels = ["Customer","Operational","Quality","Resource","Commercial"];
+    if(chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type:"radar",
+      data:{
+        labels,
+        datasets:[
+          { label: a.name || "Product A", data: [a.customer,a.operational,a.quality,a.resource,a.commercial], borderWidth:2, pointRadius:3, fill:false },
+          { label: b.name || "Product B", data: [b.customer,b.operational,b.quality,b.resource,b.commercial], borderWidth:2, pointRadius:3, fill:false }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, showLabelBackdrop:false }, grid:{ circular:true } } },
+        plugins:{ legend:{ display:true } }
+      }
+    });
+  }
+
+  // ---------- Chips + tables ----------
+  function renderChipsSingle(data){
+    const chipWrap = byId("chips");
+    chipWrap.innerHTML = "";
+
+    const items = [
+      ["Customer", data.customer],
+      ["Operational", data.operational],
+      ["Quality", data.quality],
+      ["Resource", data.resource],
+      ["Commercial", data.commercial]
+    ];
+
+    items.forEach(([name, val]) => {
+      const c = classifyScore(val);
+      const chip = document.createElement("div");
+      chip.className = "chip " + (c==="strong" ? "good" : (c==="weak" ? "bad" : "warn"));
+      chip.textContent = `${name}: ${val}/5`;
+      chipWrap.appendChild(chip);
+    });
+
+    const gateChip = document.createElement("div");
+    gateChip.className = "chip " + (data.brandGate==="yes" ? "good" : (data.brandGate==="no" ? "bad" : "warn"));
+    gateChip.textContent = `Brand Gate: ${brandGateLabel(data.brandGate)}`;
+    chipWrap.appendChild(gateChip);
+
+    const decChip = document.createElement("div");
+    decChip.className = "chip";
+    decChip.textContent = `Decision: ${decisionLabel(data.decision)}`;
+    chipWrap.appendChild(decChip);
+
+    const dirChip = document.createElement("div");
+    dirChip.className = "chip";
+    dirChip.textContent = `Direction: ${directionLabel(data.direction)}`;
+    chipWrap.appendChild(dirChip);
+
+    const roleChip = document.createElement("div");
+    roleChip.className = "chip";
+    roleChip.textContent = `Role: ${roleLabel(data.strategicRole)}`;
+    chipWrap.appendChild(roleChip);
+  }
+
+  function scoreTableSingle(data){
+    const rows = [
+      ["Customer Need & Insight", data.customer],
+      ["Operational Fit", data.operational],
+      ["Food Quality & Digestibility", data.quality],
+      ["Resource Impact", data.resource],
+      ["Commercial Strength", data.commercial],
+      ["Brand Gate", brandGateLabel(data.brandGate)],
+      ["Decision", decisionLabel(data.decision)],
+      ["Strategic role", roleLabel(data.strategicRole)],
+      ["Direction of travel", directionLabel(data.direction)]
+    ];
+
+    return `<ul>${rows.map(r => `<li><strong>${r[0]}:</strong> ${r[1]}</li>`).join("")}</ul>`;
+  }
+
+  function escapeHtml(str){
+    return str.replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  function notesOutputSingle(data){
+    const cond = (data.conditions || "").trim();
+    const notes = (data.notes || "").trim();
+    const ingred = (data.ingredients || "").trim();
+    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
+
+    return `
+      <p><strong>Product type:</strong> ${typeTxt}</p>
+      <p><strong>Strategic role:</strong> ${roleLabel(data.strategicRole)} • <strong>Decision:</strong> ${decisionLabel(data.decision)} • <strong>Direction:</strong> ${directionLabel(data.direction)}</p>
+      ${data.processNotes ? `<p><strong>Process notes:</strong> ${escapeHtml(data.processNotes)}</p>` : `<p><strong>Process notes:</strong> None recorded.</p>`}
+      ${ingred ? `<p><strong>Ingredients (at time of review):</strong><br>${escapeHtml(ingred).replace(/\n/g,"<br>")}</p>` : `<p><strong>Ingredients (at time of review):</strong> None recorded.</p>`}
+      ${cond ? `<p><strong>Conditions / required changes:</strong><br>${escapeHtml(cond).replace(/\n/g,"<br>")}</p>` : `<p><strong>Conditions / required changes:</strong> None recorded.</p>`}
+      ${notes ? `<p><strong>Notes:</strong><br>${escapeHtml(notes).replace(/\n/g,"<br>")}</p>` : `<p><strong>Notes:</strong> None recorded.</p>`}
+    `;
+  }
+
+  // ---------- Insights logic ----------
+  function getSingleData(){
+    return {
+      productType: byId("productType").value,
+      productName: byId("productName").value.trim(),
+      strategicRole: byId("strategicRole").value,
+      decision: byId("decision").value,
+      direction: byId("direction").value,
+      ingredients: byId("ingredients").value,
+      processNotes: byId("processNotes").value,
+
+      customer: +byId("sCustomer").value,
+      operational: +byId("sOperational").value,
+      quality: +byId("sQuality").value,
+      resource: +byId("sResource").value,
+      commercial: +byId("sCommercial").value,
+
+      brandGate: byId("brandGate").value,
+      conditions: byId("conditions").value,
+      notes: byId("notes").value,
+
+      showBenchmark: byId("showBenchmark") ? byId("showBenchmark").checked : false,
+      benchmarkName: byId("benchmarkName") ? byId("benchmarkName").value.trim() : "Best of Hobbs House Bakery",
+      bmkCustomer: byId("bmkCustomer") ? +byId("bmkCustomer").value : 5,
+      bmkOperational: byId("bmkOperational") ? +byId("bmkOperational").value : 5,
+      bmkQuality: byId("bmkQuality") ? +byId("bmkQuality").value : 5,
+      bmkResource: byId("bmkResource") ? +byId("bmkResource").value : 5,
+      bmkCommercial: byId("bmkCommercial") ? +byId("bmkCommercial").value : 5
+    };
+  }
+
+  function summarySingle(data){
+    const scores = [
+      { name:"Customer need", val:data.customer },
+      { name:"Operational fit", val:data.operational },
+      { name:"Food quality/digestibility", val:data.quality },
+      { name:"Resource impact", val:data.resource },
+      { name:"Commercial strength", val:data.commercial }
+    ];
+    const strong = scores.filter(s => s.val >= 4);
+    const weak = scores.filter(s => s.val <= 2);
+    const productLabel = data.productName ? `“${escapeHtml(data.productName)}”` : "This product";
+
+    const g = typeGuidance[data.productType] || typeGuidance.other;
+
+    let lines = [];
+    lines.push(`<p><strong>Decision:</strong> ${decisionLabel(data.decision)} • <strong>Strategic role:</strong> ${roleLabel(data.strategicRole)} • <strong>Direction:</strong> ${directionLabel(data.direction)}</p>`);
+
+    if(data.brandGate === "no"){
+      lines.push(`<p><strong>${productLabel}</strong> fails the Brand Gate right now. Treat this as a re-work / repositioning job before we go further.</p>`);
+    } else if(data.brandGate === "conditions"){
+      lines.push(`<p><strong>${productLabel}</strong> is broadly on track, but there are conditions to fix before we’d stand behind it confidently.</p>`);
+    } else {
+      lines.push(`<p><strong>${productLabel}</strong> clears the Brand Gate. The main question is whether the trade-offs are right for the customer and the business.</p>`);
+    }
+
+    if(strong.length){
+      lines.push(`<p><strong>Key strengths:</strong> ${strong.map(s => s.name).join(", ")}.</p>`);
+    } else {
+      lines.push(`<p><strong>No clear spikes</strong> yet — this looks balanced but not distinctive. That’s fine for some products, but it may not be memorable.</p>`);
+    }
+
+    if(weak.length){
+      lines.push(`<p><strong>Key gaps:</strong> ${weak.map(s => s.name).join(", ")}. These are your most likely levers.</p>`);
+    } else {
+      lines.push(`<p><strong>No major red flags</strong> (nothing scoring 1–2). Improvements can be incremental rather than urgent.</p>`);
+    }
+
+    lines.push(`<p><strong>Type context:</strong> ${g.focus}</p>`);
+    lines.push(`<p><strong>Useful reminder:</strong> Not every product needs to be strong in every area. What matters is that the trade-offs are conscious, and directionally we’re moving the right way.</p>`);
+
+    return lines.join("");
+  }
+
+  function actionListSingle(data){
+    const actions = [];
+    const weak = (v) => v <= 2;
+
+    // Decision first
+    if(data.decision === "park"){
+      actions.push("Park it for now: capture what would need to change for this to become viable, and what signal would trigger a revisit.");
+    }
+    if(data.decision === "rework"){
+      actions.push("Rework the brief: agree the one or two changes that would most improve this product without changing what it’s meant to do.");
+    }
+    if(data.decision === "proceed_conditions"){
+      actions.push("Proceed with conditions: write the conditions clearly, assign owners, and set a review date.");
+    }
+
+    // Brand Gate
+    if(data.brandGate === "no"){
+      actions.push("Agree what would make us proud of it (ingredients, process, story, or customer fit). If that can’t be achieved, treat it as a conscious exception and name it as such.");
+    } else if(data.brandGate === "conditions"){
+      actions.push("Write the conditions clearly (one line each) and assign owners + deadlines. Keep it specific: ‘swap X’, ‘add Y ferment’, ‘remove Z’, ‘change pack format’.");
+    }
+
+    // Lens nudges
+    if(weak(data.customer)) actions.push("Strengthen the brief: who is it for, what problem does it solve, and what does success look like (taste / performance / price / shelf life)?");
+    if(weak(data.operational)) actions.push("Make it more repeatable: simplify method, reduce fragility, or adjust timings so it fits the bakery rhythm.");
+    if(weak(data.quality)) actions.push("Find a ‘better not different’ improvement: longer fermentation, cleaner fat choice, modest wholegrain uplift, or remove unnecessary additives (without breaking the product’s role).");
+    if(weak(data.resource)) actions.push("Reduce waste and packaging impact: improve shelf life, change pack format, or simplify materials. Focus on what we can directly control.");
+    if(weak(data.commercial)) actions.push("Rebuild the commercial case: margin vs effort. Either re-price, simplify spec, or agree it’s a strategic product with a deliberate trade-off.");
+
+    const anyWeak = weak(data.customer)||weak(data.operational)||weak(data.quality)||weak(data.resource)||weak(data.commercial);
+    if(!anyWeak) actions.push("This is in decent shape. Choose one directional improvement (only one) to make it stronger over time.");
+
+    const g = typeGuidance[data.productType] || typeGuidance.other;
+    g.extra.forEach(x => actions.push(x));
+
+    return `<ul>${actions.map(a => `<li>${escapeHtml(a)}</li>`).join("")}</ul>`;
+  }
+
+  // ---------- Compare mode ----------
+  function getCompareData(){
+    return {
+      productType: byId("productType").value,
+      a: {
+        name: byId("nameA").value.trim(),
+        customer: +byId("aCustomer").value,
+        operational: +byId("aOperational").value,
+        quality: +byId("aQuality").value,
+        resource: +byId("aResource").value,
+        commercial: +byId("aCommercial").value,
+        brandGate: byId("aBrand").value,
+        notes: byId("aNotes").value
+      },
+      b: {
+        name: byId("nameB").value.trim(),
+        customer: +byId("bCustomer").value,
+        operational: +byId("bOperational").value,
+        quality: +byId("bQuality").value,
+        resource: +byId("bResource").value,
+        commercial: +byId("bCommercial").value,
+        brandGate: byId("bBrand").value,
+        notes: byId("bNotes").value
+      }
+    };
+  }
+
+  function compareSummaryBlock(label, d){
+    const scores = [
+      ["Customer need", d.customer],
+      ["Operational fit", d.operational],
+      ["Quality/digestibility", d.quality],
+      ["Resource impact", d.resource],
+      ["Commercial strength", d.commercial]
+    ];
+    const strong = scores.filter(s => s[1] >= 4).map(s => s[0]);
+    const weak = scores.filter(s => s[1] <= 2).map(s => s[0]);
+    const name = d.name ? escapeHtml(d.name) : label;
+
+    return `
+      <div class="card" style="box-shadow:none; background: rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.10)">
+        <div class="miniTitle">${name}</div>
+        <p><strong>Brand Gate:</strong> ${brandGateLabel(d.brandGate)}</p>
+        ${strong.length ? `<p><strong>Strengths:</strong> ${strong.join(", ")}.</p>` : `<p><strong>Strengths:</strong> none obvious yet.</p>`}
+        ${weak.length ? `<p><strong>Gaps:</strong> ${weak.join(", ")}.</p>` : `<p><strong>Gaps:</strong> no major red flags.</p>`}
+        ${d.notes.trim() ? `<p><strong>Notes:</strong><br>${escapeHtml(d.notes).replace(/\n/g,"<br>")}</p>` : ``}
+      </div>
+    `;
+  }
+
+  function compareActions(a,b,productType){
+    const dims = [
+      ["Customer Need & Insight","customer"],
+      ["Operational Fit","operational"],
+      ["Food Quality & Digestibility","quality"],
+      ["Resource Impact","resource"],
+      ["Commercial Strength","commercial"]
+    ];
+
+    const winsA = [], winsB = [], ties = [];
+    dims.forEach(([name,key]) => {
+      if(a[key] > b[key]) winsA.push(name);
+      else if(b[key] > a[key]) winsB.push(name);
+      else ties.push(name);
+    });
+
+    const g = typeGuidance[productType] || typeGuidance.other;
+    const recs = [];
+
+    if(a.brandGate === "no" && b.brandGate !== "no"){
+      recs.push("Product A fails the Brand Gate. Unless there’s a strong reason, prioritise B or rework A first.");
+    } else if(b.brandGate === "no" && a.brandGate !== "no"){
+      recs.push("Product B fails the Brand Gate. Unless there’s a strong reason, prioritise A or rework B first.");
+    }
+
+    if(winsA.length || winsB.length){
+      recs.push(`Where they differ: ${winsA.length ? `A is stronger on ${winsA.join(", ")}` : ""}${winsA.length && winsB.length ? " / " : ""}${winsB.length ? `B is stronger on ${winsB.join(", ")}` : ""}.`);
+    }
+    if(ties.length) recs.push(`Similar on: ${ties.join(", ")}.`);
+
+    recs.push(g.focus);
+    recs.push("If this is a recipe change decision, keep the product’s job the same and improve one thing at a time (so we know what actually made it better).");
+
+    return `<ul>${recs.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+  }
+
+  // ---------- Render ----------
+  function renderSingle(){
+    const data = getSingleData();
+    buildChartSingle(data);
+    renderChipsSingle(data);
+
+    byId("summary").innerHTML = summarySingle(data);
+    byId("actions").innerHTML = actionListSingle(data);
+    byId("scoreTable").innerHTML = scoreTableSingle(data);
+    byId("notesOut").innerHTML = notesOutputSingle(data);
+  }
+
+  function renderCompare(){
+    const data = getCompareData();
+    buildChartCompare(data.a, data.b);
+
+    byId("chips").innerHTML = `
+      <div class="chip warn">Mode: Compare</div>
+      <div class="chip">Type: ${byId("productType").options[byId("productType").selectedIndex].text}</div>
+    `;
+
+    byId("summary").innerHTML = `
+      <div class="twoCol">
+        ${compareSummaryBlock("Product A", data.a)}
+        ${compareSummaryBlock("Product B", data.b)}
+      </div>
+    `;
+
+    byId("actions").innerHTML = compareActions(data.a, data.b, data.productType);
+
+    byId("scoreTable").innerHTML = `
+      <div class="twoCol">
+        <div>${scoreTableSingle({customer:data.a.customer, operational:data.a.operational, quality:data.a.quality, resource:data.a.resource, commercial:data.a.commercial, brandGate:data.a.brandGate, decision:"proceed", strategicRole:"core", direction:"stable"})}</div>
+        <div>${scoreTableSingle({customer:data.b.customer, operational:data.b.operational, quality:data.b.quality, resource:data.b.resource, commercial:data.b.commercial, brandGate:data.b.brandGate, decision:"proceed", strategicRole:"core", direction:"stable"})}</div>
+      </div>
+    `;
+
+    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
+    byId("notesOut").innerHTML = `
+      <p><strong>Product type:</strong> ${typeTxt}</p>
+      <p><strong>Notes A:</strong><br>${escapeHtml(data.a.notes||"").replace(/\n/g,"<br>") || "None"}</p>
+      <p><strong>Notes B:</strong><br>${escapeHtml(data.b.notes||"").replace(/\n/g,"<br>") || "None"}</p>
+    `;
+  }
+
+  // ---------- Mode switching ----------
+  const tabSingle = byId("tabSingle");
+  const tabCompare = byId("tabCompare");
+  const singleInputs = byId("singleInputs");
+  const compareInputs = byId("compareInputs");
+
+  let mode = "single";
+
+  function setMode(next){
+    mode = next;
+    const isSingle = mode === "single";
+    tabSingle.classList.toggle("active", isSingle);
+    tabCompare.classList.toggle("active", !isSingle);
+    tabSingle.setAttribute("aria-selected", isSingle);
+    tabCompare.setAttribute("aria-selected", !isSingle);
+
+    singleInputs.classList.toggle("hidden", !isSingle);
+    compareInputs.classList.toggle("hidden", isSingle);
+
+    if(isSingle) renderSingle();
+    else renderCompare();
+  }
+
+  tabSingle.addEventListener("click", () => setMode("single"));
+  tabCompare.addEventListener("click", () => setMode("compare"));
+
+  // ---------- Buttons ----------
+  byId("btnGenerate").addEventListener("click", renderSingle);
+
+  byId("btnReset").addEventListener("click", () => {
+    byId("productType").value = "retail_loaf";
+    byId("productName").value = "";
+    byId("strategicRole").value = "core";
+    byId("decision").value = "proceed";
+    byId("direction").value = "stable";
+    byId("ingredients").value = "";
+    byId("processNotes").value = "";
+    byId("sCustomer").value = 3; byId("vCustomer").textContent = 3;
+    byId("sOperational").value = 3; byId("vOperational").textContent = 3;
+    byId("sQuality").value = 3; byId("vQuality").textContent = 3;
+    byId("sResource").value = 3; byId("vResource").textContent = 3;
+    byId("sCommercial").value = 3; byId("vCommercial").textContent = 3;
+    byId("brandGate").value = "yes";
+    byId("conditions").value = "";
+    byId("notes").value = "";
+
+    if(byId("showBenchmark")) byId("showBenchmark").checked = false;
+    if(byId("benchmarkFields")) byId("benchmarkFields").classList.add("hidden");
+    if(byId("benchmarkName")) byId("benchmarkName").value = "Best of Hobbs House Bakery";
+    if(byId("bmkCustomer")) { byId("bmkCustomer").value = 5; byId("vbmkCustomer").textContent = 5; }
+    if(byId("bmkOperational")) { byId("bmkOperational").value = 5; byId("vbmkOperational").textContent = 5; }
+    if(byId("bmkQuality")) { byId("bmkQuality").value = 5; byId("vbmkQuality").textContent = 5; }
+    if(byId("bmkResource")) { byId("bmkResource").value = 5; byId("vbmkResource").textContent = 5; }
+    if(byId("bmkCommercial")) { byId("bmkCommercial").value = 5; byId("vbmkCommercial").textContent = 5; }
+
+    renderSingle();
+  });
+
+  byId("btnGenerateCompare").addEventListener("click", renderCompare);
+
+  byId("btnResetCompare").addEventListener("click", () => {
+    byId("productType").value = "hospitality_bun";
+    ["nameA","nameB","aNotes","bNotes"].forEach(id => byId(id).value = "");
+    ["aCustomer","aOperational","aQuality","aResource","aCommercial","bCustomer","bOperational","bQuality","bResource","bCommercial"].forEach(id => byId(id).value = 3);
+    ["vaCustomer","vaOperational","vaQuality","vaResource","vaCommercial","vbCustomer","vbOperational","vbQuality","vbResource","vbCommercial"].forEach(id => byId(id).textContent = 3);
+    byId("aBrand").value = "yes";
+    byId("bBrand").value = "yes";
+    renderCompare();
+  });
+
+  byId("productType").addEventListener("change", () => {
+    if(mode === "single") renderSingle();
+    else renderCompare();
+  });
+
+  // ---------- Save/Load (LocalStorage) ----------
+  const LS_KEY = "hhb_product_balance_v2";
+
+  function currentState(){
+    if(mode === "single") return { mode, ...getSingleData() };
+    const c = getCompareData();
+    return { mode, ...c };
+  }
+
+  function applyState(state){
+    if(!state || !state.mode) return;
+
+    setMode(state.mode);
+    byId("productType").value = state.productType || "retail_loaf";
+
+    if(state.mode === "single"){
+      byId("productName").value = state.productName || "";
+      byId("strategicRole").value = state.strategicRole || "core";
+      byId("decision").value = state.decision || "proceed";
+      byId("direction").value = state.direction || "stable";
+      byId("ingredients").value = state.ingredients || "";
+      byId("processNotes").value = state.processNotes || "";
+
+      byId("sCustomer").value = state.customer ?? 3; byId("vCustomer").textContent = byId("sCustomer").value;
+      byId("sOperational").value = state.operational ?? 3; byId("vOperational").textContent = byId("sOperational").value;
+      byId("sQuality").value = state.quality ?? 3; byId("vQuality").textContent = byId("sQuality").value;
+      byId("sResource").value = state.resource ?? 3; byId("vResource").textContent = byId("sResource").value;
+      byId("sCommercial").value = state.commercial ?? 3; byId("vCommercial").textContent = byId("sCommercial").value;
+
+      byId("brandGate").value = state.brandGate || "yes";
+      byId("conditions").value = state.conditions || "";
+      byId("notes").value = state.notes || "";
+
+      if(byId("showBenchmark")){
+        byId("showBenchmark").checked = !!state.showBenchmark;
+        syncBenchmarkVisibility();
+      }
+      if(byId("benchmarkName")) byId("benchmarkName").value = state.benchmarkName || "Best of Hobbs House Bakery";
+      if(byId("bmkCustomer")){ byId("bmkCustomer").value = state.bmkCustomer ?? 5; byId("vbmkCustomer").textContent = byId("bmkCustomer").value; }
+      if(byId("bmkOperational")){ byId("bmkOperational").value = state.bmkOperational ?? 5; byId("vbmkOperational").textContent = byId("bmkOperational").value; }
+      if(byId("bmkQuality")){ byId("bmkQuality").value = state.bmkQuality ?? 5; byId("vbmkQuality").textContent = byId("bmkQuality").value; }
+      if(byId("bmkResource")){ byId("bmkResource").value = state.bmkResource ?? 5; byId("vbmkResource").textContent = byId("bmkResource").value; }
+      if(byId("bmkCommercial")){ byId("bmkCommercial").value = state.bmkCommercial ?? 5; byId("vbmkCommercial").textContent = byId("bmkCommercial").value; }
+
+      renderSingle();
+    } else {
+      const a = state.a || {};
+      const b = state.b || {};
+      byId("nameA").value = a.name || "";
+      byId("nameB").value = b.name || "";
+
+      byId("aCustomer").value = a.customer ?? 3; byId("vaCustomer").textContent = byId("aCustomer").value;
+      byId("aOperational").value = a.operational ?? 3; byId("vaOperational").textContent = byId("aOperational").value;
+      byId("aQuality").value = a.quality ?? 3; byId("vaQuality").textContent = byId("aQuality").value;
+      byId("aResource").value = a.resource ?? 3; byId("vaResource").textContent = byId("aResource").value;
+      byId("aCommercial").value = a.commercial ?? 3; byId("vaCommercial").textContent = byId("aCommercial").value;
+      byId("aBrand").value = a.brandGate || "yes";
+      byId("aNotes").value = a.notes || "";
+
+      byId("bCustomer").value = b.customer ?? 3; byId("vbCustomer").textContent = byId("bCustomer").value;
+      byId("bOperational").value = b.operational ?? 3; byId("vbOperational").textContent = byId("bOperational").value;
+      byId("bQuality").value = b.quality ?? 3; byId("vbQuality").textContent = byId("bQuality").value;
+      byId("bResource").value = b.resource ?? 3; byId("vbResource").textContent = byId("bResource").value;
+      byId("bCommercial").value = b.commercial ?? 3; byId("vbCommercial").textContent = byId("bCommercial").value;
+      byId("bBrand").value = b.brandGate || "yes";
+      byId("bNotes").value = b.notes || "";
+
+      renderCompare();
+    }
+  }
+
+  byId("btnSaveLocal").addEventListener("click", () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(currentState()));
+    alert("Saved.");
+  });
+
+  byId("btnLoadLocal").addEventListener("click", () => {
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return alert("Nothing saved yet.");
+    applyState(JSON.parse(raw));
+    alert("Loaded.");
+  });
+
+  // ---------- Export / Import JSON ----------
+  byId("btnExportJSON").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(currentState(), null, 2)], { type:"application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hhb-product-balance-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  byId("btnImportJSON").addEventListener("click", () => byId("jsonFile").click());
+  byId("jsonFile").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await file.text();
+    try{
+      const state = JSON.parse(text);
+      applyState(state);
+      alert("Imported.");
+    }catch(err){
+      alert("Could not import that JSON file.");
+    }finally{
+      e.target.value = "";
+    }
+  });
+
+  // ---------- Export PNG / PDF ----------
+  byId("btnPNG").addEventListener("click", async () => {
+    const el = byId("exportArea");
+    const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 });
+    const link = document.createElement("a");
+    link.download = `hhb-product-balance-${new Date().toISOString().slice(0,10)}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+
+  byId("btnPDF").addEventListener("click", async () => {
+    const report = document.createElement("div");
+    report.style.padding = "18px";
+    report.style.width = "900px";
+    report.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+    report.style.color = "#111";
+    report.style.background = "#fff";
+
+    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
+    const title = (mode === "single")
+      ? (byId("productName").value.trim() || "Product profile")
+      : "Product comparison";
+
+    report.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px;">
+        <div>
+          <div style="font-weight:800; font-size:18px;">Hobbs House Bakery – Product Balance Framework</div>
+          <div style="margin-top:4px; font-size:13px; color:#444;"><strong>${escapeHtml(title)}</strong> • ${escapeHtml(typeTxt)} • ${new Date().toLocaleDateString("en-GB")}</div>
+        </div>
+        <div style="width:46px; height:46px; border-radius:12px; background: linear-gradient(135deg, #f26a21, #ff8a3d, #ffb27a);"></div>
+      </div>
+      <hr style="border:0; border-top:1px solid #ddd; margin:12px 0 14px;">
+      <div id="pdfChart" style="margin: 0 0 12px 0;"></div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+        <div>
+          <div style="font-weight:800; margin-bottom:6px;">What this tells us</div>
+          <div id="pdfSummary" style="font-size:12.5px; color:#333;"></div>
+        </div>
+        <div>
+          <div style="font-weight:800; margin-bottom:6px;">Suggested next steps</div>
+          <div id="pdfActions" style="font-size:12.5px; color:#333;"></div>
+        </div>
+      </div>
+      <hr style="border:0; border-top:1px solid #ddd; margin:12px 0 10px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+        <div>
+          <div style="font-weight:800; margin-bottom:6px;">Scores</div>
+          <div id="pdfScores" style="font-size:12.5px; color:#333;"></div>
+        </div>
+        <div>
+          <div style="font-weight:800; margin-bottom:6px;">Notes</div>
+          <div id="pdfNotes" style="font-size:12.5px; color:#333;"></div>
+        </div>
+      </div>
+    `;
+
+    const exportCanvas = await html2canvas(byId("exportArea"), { backgroundColor: "#ffffff", scale: 2 });
+    const imgData = exportCanvas.toDataURL("image/png");
+    const img = document.createElement("img");
+    img.src = imgData;
+    img.style.width = "100%";
+    img.style.border = "1px solid #eee";
+    img.style.borderRadius = "10px";
+    report.querySelector("#pdfChart").appendChild(img);
+
+    report.querySelector("#pdfSummary").innerHTML = byId("summary").innerHTML;
+    report.querySelector("#pdfActions").innerHTML = byId("actions").innerHTML;
+    report.querySelector("#pdfScores").innerHTML = byId("scoreTable").innerHTML;
+    report.querySelector("#pdfNotes").innerHTML = byId("notesOut").innerHTML;
+
+    document.body.appendChild(report);
+    const canvas = await html2canvas(report, { backgroundColor: "#ffffff", scale: 2 });
+    document.body.removeChild(report);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"p", unit:"pt", format:"a4" });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgW = pageWidth;
+    const imgH = canvas.height * (imgW / canvas.width);
+
+    let y = 0;
+    let remaining = imgH;
+
+    const imgPDF = canvas.toDataURL("image/png");
+
+    while(remaining > 0){
+      pdf.addImage(imgPDF, "PNG", 0, y, imgW, imgH);
+      remaining -= pageHeight;
+      if(remaining > 0){
+        pdf.addPage();
+        y -= pageHeight;
+      }
+    }
+    pdf.save(`hhb-product-balance-${new Date().toISOString().slice(0,10)}.pdf`);
+  });
+
+  // ---------- Init ----------
+  function init(){
+    const missing = depsOk();
+    if(missing.length) showDepError(missing);
+    setMode("single");
+    if(typeof Chart !== "undefined") renderSingle();
+  }
+  init();
+</script>
+</body>
+</html>
