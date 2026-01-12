@@ -61,9 +61,6 @@
       object-fit: contain;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
     }
-    @media (max-width: 520px){
-      .mark{ width: 155px; }
-    }
 
     h1{
       margin:0;
@@ -223,10 +220,7 @@
       gap: 16px;
     }
 
-    .chartWrap{
-      padding: 10px 12px 14px;
-    }
-    canvas{ width:100% !important; height: 380px !important; }
+    .chartWrap{ padding: 10px 12px 14px; }
 
     .chips{
       display:flex;
@@ -283,10 +277,12 @@
 
     .hidden{ display:none !important; }
 
+    /* Print-friendly */
     @media print{
-      body{ background: #fff; color:#000; }
-      .card{ box-shadow:none; }
-      .btn, .tabs, .topActions{ display:none !important; }
+      body{ background:#fff; color:#000; }
+      header, .topActions, .tabs, .btn{ display:none !important; }
+      .card{ box-shadow:none; border:1px solid #ddd; }
+      .out p, .out li{ color:#000; }
     }
   </style>
 </head>
@@ -294,8 +290,8 @@
 <body>
 <header>
   <div class="brandBlock">
-    <!-- Put a logo PNG next to this file named: logo.png -->
-    <img class="mark" src="logo.png" alt="Hobbs House Bakery" />
+    <!-- Optional logo: put a logo PNG next to this file named: logo.png -->
+    <img class="mark" src="logo.png" alt="Hobbs House Bakery" onerror="this.style.display='none'"/>
     <div>
       <h1>Hobbs House Bakery – Product Balance Framework</h1>
       <p>Score a product across five lenses, apply the Brand Gate, record the decision, and generate a spider chart plus plain-English next steps. This is a decision lens, not a nutrition claims tool.</p>
@@ -303,10 +299,12 @@
   </div>
 
   <div class="topActions">
-    <button class="btn ghost small" id="btnSaveLocal">Save</button>
-    <button class="btn ghost small" id="btnLoadLocal">Load</button>
-    <button class="btn ghost small" id="btnExportJSON">Export JSON</button>
-    <button class="btn ghost small" id="btnImportJSON">Import JSON</button>
+    <button class="btn ghost small" id="btnSaveLocal" type="button">Save</button>
+    <button class="btn ghost small" id="btnLoadLocal" type="button">Load</button>
+    <button class="btn ghost small" id="btnExportJSON" type="button">Export JSON</button>
+    <button class="btn ghost small" id="btnImportJSON" type="button">Import JSON</button>
+    <button class="btn ghost small" id="btnDownloadSVG" type="button">Download chart (SVG)</button>
+    <button class="btn ghost small" id="btnPrintPDF" type="button">Print / Save as PDF</button>
     <input type="file" id="jsonFile" accept="application/json" class="hidden" />
   </div>
 </header>
@@ -315,25 +313,21 @@
   <!-- LEFT: Inputs -->
   <section class="card" aria-label="Inputs">
     <div class="tabs" role="tablist" aria-label="Mode">
-      <button class="tab active" id="tabSingle" role="tab" aria-selected="true">Single product</button>
-      <button class="tab" id="tabCompare" role="tab" aria-selected="false">Compare two products</button>
+      <button class="tab active" id="tabSingle" type="button" role="tab" aria-selected="true">Single product</button>
+      <button class="tab" id="tabCompare" type="button" role="tab" aria-selected="false">Compare two products</button>
     </div>
 
     <div class="divider"></div>
 
-    <div class="row">
-      <div style="flex:1">
-        <label for="productType">Product type</label>
-        <select id="productType">
-          <option value="retail_loaf">Retail loaf</option>
-          <option value="hospitality_bun">Hospitality bun / roll</option>
-          <option value="reseller_line">Reseller line</option>
-          <option value="sweet">Sweet / confectionery</option>
-          <option value="other">Other</option>
-        </select>
-        <div class="hint">This changes the “next steps” guidance to suit what the product is meant to do.</div>
-      </div>
-    </div>
+    <label for="productType">Product type</label>
+    <select id="productType">
+      <option value="retail_loaf">Retail loaf</option>
+      <option value="hospitality_bun">Hospitality bun / roll</option>
+      <option value="reseller_line">Reseller line</option>
+      <option value="sweet">Sweet / confectionery</option>
+      <option value="other">Other</option>
+    </select>
+    <div class="hint">This changes the “next steps” guidance to suit what the product is meant to do.</div>
 
     <div id="singleInputs">
       <label for="productName">Product name</label>
@@ -383,6 +377,7 @@
 
       <div class="divider"></div>
 
+      <!-- Sliders -->
       <label>1) Customer Need & Insight</label>
       <div class="row">
         <input id="sCustomer" type="range" min="1" max="5" step="1" value="3" />
@@ -450,12 +445,38 @@
         <div class="twoCol">
           <div>
             <label>Benchmark scores (1–5)</label>
-            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Customer</span><input id="bmkCustomer" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkCustomer">5</div></div>
-            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Operational</span><input id="bmkOperational" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkOperational">5</div></div>
-            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Quality</span><input id="bmkQuality" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkQuality">5</div></div>
-            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Resource</span><input id="bmkResource" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkResource">5</div></div>
-            <div class="row"><span style="width:95px; color:var(--muted); font-size:12px;">Commercial</span><input id="bmkCommercial" type="range" min="1" max="5" step="1" value="5" /><div class="value" id="vbmkCommercial">5</div></div>
+
+            <div class="row">
+              <span style="width:95px; color:var(--muted); font-size:12px;">Customer</span>
+              <input id="bmkCustomer" type="range" min="1" max="5" step="1" value="5" />
+              <div class="value" id="vbmkCustomer">5</div>
+            </div>
+
+            <div class="row">
+              <span style="width:95px; color:var(--muted); font-size:12px;">Operational</span>
+              <input id="bmkOperational" type="range" min="1" max="5" step="1" value="5" />
+              <div class="value" id="vbmkOperational">5</div>
+            </div>
+
+            <div class="row">
+              <span style="width:95px; color:var(--muted); font-size:12px;">Quality</span>
+              <input id="bmkQuality" type="range" min="1" max="5" step="1" value="5" />
+              <div class="value" id="vbmkQuality">5</div>
+            </div>
+
+            <div class="row">
+              <span style="width:95px; color:var(--muted); font-size:12px;">Resource</span>
+              <input id="bmkResource" type="range" min="1" max="5" step="1" value="5" />
+              <div class="value" id="vbmkResource">5</div>
+            </div>
+
+            <div class="row">
+              <span style="width:95px; color:var(--muted); font-size:12px;">Commercial</span>
+              <input id="bmkCommercial" type="range" min="1" max="5" step="1" value="5" />
+              <div class="value" id="vbmkCommercial">5</div>
+            </div>
           </div>
+
           <div>
             <label for="benchmarkName">Benchmark name</label>
             <input id="benchmarkName" type="text" value="Best of Hobbs House Bakery" />
@@ -465,13 +486,14 @@
       </div>
 
       <div class="actions">
-        <button class="btn primary" id="btnGenerate">Generate chart & insights</button>
-        <button class="btn ghost" id="btnReset">Reset</button>
+        <button class="btn primary" id="btnGenerate" type="button">Generate chart & insights</button>
+        <button class="btn ghost" id="btnReset" type="button">Reset</button>
       </div>
 
       <div class="footerNote">Scoring guide: 1 = weak, 3 = acceptable, 5 = genuinely strong.</div>
     </div>
 
+    <!-- Compare mode -->
     <div id="compareInputs" class="hidden">
       <div class="twoCol">
         <div>
@@ -479,35 +501,11 @@
           <label for="nameA">Name</label>
           <input id="nameA" type="text" placeholder="e.g. Bun A (current)" />
 
-          <label>Customer Need & Insight</label>
-          <div class="row">
-            <input id="aCustomer" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vaCustomer">3</div>
-          </div>
-
-          <label>Operational Fit</label>
-          <div class="row">
-            <input id="aOperational" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vaOperational">3</div>
-          </div>
-
-          <label>Food Quality & Digestibility</label>
-          <div class="row">
-            <input id="aQuality" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vaQuality">3</div>
-          </div>
-
-          <label>Resource Impact</label>
-          <div class="row">
-            <input id="aResource" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vaResource">3</div>
-          </div>
-
-          <label>Commercial Strength</label>
-          <div class="row">
-            <input id="aCommercial" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vaCommercial">3</div>
-          </div>
+          <label>Customer</label><div class="row"><input id="aCustomer" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vaCustomer">3</div></div>
+          <label>Operational</label><div class="row"><input id="aOperational" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vaOperational">3</div></div>
+          <label>Quality</label><div class="row"><input id="aQuality" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vaQuality">3</div></div>
+          <label>Resource</label><div class="row"><input id="aResource" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vaResource">3</div></div>
+          <label>Commercial</label><div class="row"><input id="aCommercial" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vaCommercial">3</div></div>
 
           <label>Brand Gate</label>
           <select id="aBrand">
@@ -525,35 +523,11 @@
           <label for="nameB">Name</label>
           <input id="nameB" type="text" placeholder="e.g. Bun B (clean label + longer ferment)" />
 
-          <label>Customer Need & Insight</label>
-          <div class="row">
-            <input id="bCustomer" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vbCustomer">3</div>
-          </div>
-
-          <label>Operational Fit</label>
-          <div class="row">
-            <input id="bOperational" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vbOperational">3</div>
-          </div>
-
-          <label>Food Quality & Digestibility</label>
-          <div class="row">
-            <input id="bQuality" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vbQuality">3</div>
-          </div>
-
-          <label>Resource Impact</label>
-          <div class="row">
-            <input id="bResource" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vbResource">3</div>
-          </div>
-
-          <label>Commercial Strength</label>
-          <div class="row">
-            <input id="bCommercial" type="range" min="1" max="5" step="1" value="3" />
-            <div class="value" id="vbCommercial">3</div>
-          </div>
+          <label>Customer</label><div class="row"><input id="bCustomer" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vbCustomer">3</div></div>
+          <label>Operational</label><div class="row"><input id="bOperational" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vbOperational">3</div></div>
+          <label>Quality</label><div class="row"><input id="bQuality" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vbQuality">3</div></div>
+          <label>Resource</label><div class="row"><input id="bResource" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vbResource">3</div></div>
+          <label>Commercial</label><div class="row"><input id="bCommercial" type="range" min="1" max="5" step="1" value="3"><div class="value" id="vbCommercial">3</div></div>
 
           <label>Brand Gate</label>
           <select id="bBrand">
@@ -568,11 +542,9 @@
       </div>
 
       <div class="actions">
-        <button class="btn primary" id="btnGenerateCompare">Generate comparison</button>
-        <button class="btn ghost" id="btnResetCompare">Reset</button>
+        <button class="btn primary" id="btnGenerateCompare" type="button">Generate comparison</button>
+        <button class="btn ghost" id="btnResetCompare" type="button">Reset</button>
       </div>
-
-      <div class="footerNote">Tip: Use Compare to show “before/after” recipe changes (e.g. bun clean-label update).</div>
     </div>
   </section>
 
@@ -581,14 +553,11 @@
     <section class="card chartWrap" aria-label="Chart">
       <div class="row" style="justify-content:space-between; gap:10px; flex-wrap:wrap;">
         <h2 style="margin:0;">Spider chart</h2>
-        <div class="actions" style="margin:0;">
-          <button class="btn ghost small" id="btnPNG">Download PNG</button>
-          <button class="btn ghost small" id="btnPDF">Download PDF</button>
-        </div>
+        <div class="hint">No external libraries used — should work anywhere.</div>
       </div>
 
       <div id="exportArea">
-        <canvas id="radarChart"></canvas>
+        <div id="chartHolder"></div>
         <div class="chips" id="chips"></div>
       </div>
     </section>
@@ -615,14 +584,16 @@
   </section>
 </main>
 
-<!-- Libraries (CDN). If your network blocks these, use the GitHub method or ask for an offline build. -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
 <script>
-  // ---------- Utilities ----------
+  // ---------- Helpers ----------
   const byId = (id) => document.getElementById(id);
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function escapeHtml(str){
+    return (str ?? "").toString().replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
 
   function classifyScore(n){
     if(n >= 4) return "strong";
@@ -633,17 +604,14 @@
   function brandGateLabel(v){
     return v === "yes" ? "Yes" : (v === "no" ? "No" : "Yes (conditions)");
   }
-
   function decisionLabel(v){
     return v === "proceed" ? "Proceed" :
       (v === "proceed_conditions" ? "Proceed (conditions)" :
       (v === "rework" ? "Rework" : "Park / say no"));
   }
-
   function directionLabel(v){
     return v === "improving" ? "Improving" : (v === "declining" ? "Declining" : "Stable");
   }
-
   function roleLabel(v){
     return v === "flagship" ? "Flagship" :
       (v === "core" ? "Core range" :
@@ -661,7 +629,7 @@
       ]
     },
     hospitality_bun: {
-      focus: "Hospitality bun focus: performance and customer brief come first (softness, slicing, freeze/thaw). Improve ‘clean label’ and fermentation directionally without changing the role of the product.",
+      focus: "Hospitality bun focus: performance and customer brief come first (softness, slicing, freeze/thaw). Improve ‘clean label’ and fermentation directionally without changing the job of the product.",
       extra: [
         "Keep the bun doing its job (soft, reliable, holds fillings). Improve ingredients/process around that.",
         "Aim for ‘better not different’: longer ferment, cleaner fats, tidy-up list, but maintain texture."
@@ -690,42 +658,12 @@
     }
   };
 
-  // ---------- Dependency check ----------
-  function depsOk(){
-    const missing = [];
-    if(typeof Chart === "undefined") missing.push("Chart.js");
-    if(typeof html2canvas === "undefined") missing.push("html2canvas");
-    if(!window.jspdf || !window.jspdf.jsPDF) missing.push("jsPDF");
-    return missing;
-  }
-
-  function showDepError(missing){
-    const msg = document.createElement("div");
-    msg.style.marginTop = "10px";
-    msg.style.padding = "10px 12px";
-    msg.style.borderRadius = "12px";
-    msg.style.border = "1px solid rgba(255,107,107,.55)";
-    msg.style.background = "rgba(255,107,107,.12)";
-    msg.style.color = "#ffd5d5";
-    msg.style.fontSize = "12.5px";
-    msg.innerHTML = `<strong>Heads up:</strong> Some libraries didn't load (${missing.join(", ")}). 
-      This is usually a network/CDN block. The page will still show the form, but charts/exports may not work.
-      <br><br><strong>Fix:</strong> allow access to cdn.jsdelivr.net, or use the GitHub → Netlify method, or ask for the offline (no-CDN) build.`;
-    const chartCard = document.querySelector('[aria-label="Chart"]');
-    if(chartCard) chartCard.appendChild(msg);
-
-    const b1 = document.getElementById("btnPNG");
-    const b2 = document.getElementById("btnPDF");
-    if(b1) b1.disabled = true;
-    if(b2) b2.disabled = true;
-  }
-
   // ---------- Slider readouts ----------
   const singleSliders = [
     ["sCustomer","vCustomer"], ["sOperational","vOperational"], ["sQuality","vQuality"], ["sResource","vResource"], ["sCommercial","vCommercial"]
   ];
   singleSliders.forEach(([s,o]) => {
-    byId(s).addEventListener("input", () => byId(o).textContent = byId(s).value);
+    byId(s).addEventListener("input", () => { byId(o).textContent = byId(s).value; if(mode==="single") renderSingle(); });
     byId(o).textContent = byId(s).value;
   });
 
@@ -734,183 +672,112 @@
     ["bCustomer","vbCustomer"], ["bOperational","vbOperational"], ["bQuality","vbQuality"], ["bResource","vbResource"], ["bCommercial","vbCommercial"]
   ];
   compareSliders.forEach(([s,o]) => {
-    byId(s).addEventListener("input", () => byId(o).textContent = byId(s).value);
+    byId(s).addEventListener("input", () => { byId(o).textContent = byId(s).value; if(mode==="compare") renderCompare(); });
     byId(o).textContent = byId(s).value;
   });
 
-  // Benchmark sliders + toggle
   const bmkSliders = [
     ["bmkCustomer","vbmkCustomer"], ["bmkOperational","vbmkOperational"], ["bmkQuality","vbmkQuality"], ["bmkResource","vbmkResource"], ["bmkCommercial","vbmkCommercial"]
   ];
   bmkSliders.forEach(([s,o]) => {
-    const el = byId(s);
-    if(!el) return;
-    el.addEventListener("input", () => { byId(o).textContent = el.value; if(mode === "single") renderSingle(); });
-    byId(o).textContent = el.value;
+    byId(s).addEventListener("input", () => { byId(o).textContent = byId(s).value; if(mode==="single") renderSingle(); });
+    byId(o).textContent = byId(s).value;
   });
 
   function syncBenchmarkVisibility(){
     const cb = byId("showBenchmark");
     const box = byId("benchmarkFields");
-    if(!cb || !box) return;
     box.classList.toggle("hidden", !cb.checked);
   }
-  if(byId("showBenchmark")){
-    byId("showBenchmark").addEventListener("change", () => {
-      syncBenchmarkVisibility();
-      if(mode === "single") renderSingle();
-    });
-    syncBenchmarkVisibility();
+  byId("showBenchmark").addEventListener("change", () => { syncBenchmarkVisibility(); renderSingle(); });
+  syncBenchmarkVisibility();
+
+  // ---------- SVG Radar Chart ----------
+  const dims = ["Customer","Operational","Quality","Resource","Commercial"];
+
+  function polarToXY(cx, cy, r, angleRad){
+    return { x: cx + r * Math.cos(angleRad), y: cy + r * Math.sin(angleRad) };
   }
 
-  // ---------- Chart ----------
-  const ctx = byId("radarChart");
-  let chart;
+  function buildRadarSVG(series, opts){
+    // opts: { title, benchmarkSeries? }
+    const size = 420;
+    const padding = 46;
+    const cx = size/2, cy = size/2;
+    const maxR = (size/2) - padding;
 
-  function buildChartSingle(data){
-    const labels = ["Customer","Operational","Quality","Resource","Commercial"];
-    const values = [data.customer, data.operational, data.quality, data.resource, data.commercial];
+    const rings = 5; // 1..5
+    const angleStart = -Math.PI / 2; // start at top
+    const step = (Math.PI * 2) / dims.length;
 
-    const datasets = [{
-      label: data.productName || "Product profile",
-      data: values,
-      borderWidth: 2,
-      pointRadius: 3,
-      fill: true
-    }];
-
-    if(data.showBenchmark){
-      datasets.push({
-        label: data.benchmarkName || "Best of Hobbs House Bakery",
-        data: [data.bmkCustomer, data.bmkOperational, data.bmkQuality, data.bmkResource, data.bmkCommercial],
-        borderWidth: 2,
-        pointRadius: 2,
-        fill: false,
-        borderDash: [6, 4]
+    // helper to create polygon points from values [1..5]
+    function valuesToPoints(values){
+      const pts = values.map((v, i) => {
+        const rr = (clamp(v,0,5) / 5) * maxR;
+        const a = angleStart + i * step;
+        const p = polarToXY(cx, cy, rr, a);
+        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
       });
+      return pts.join(" ");
     }
 
-    if(chart) chart.destroy();
+    // Background grid rings (polygons)
+    let grid = "";
+    for(let r=1; r<=rings; r++){
+      const vals = new Array(dims.length).fill(r);
+      grid += `<polygon points="${valuesToPoints(vals)}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>`;
+    }
 
-    chart = new Chart(ctx, {
-      type:"radar",
-      data:{ labels, datasets },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        scales:{
-          r:{
-            min:0, max:5,
-            ticks:{ stepSize:1, showLabelBackdrop:false },
-            grid:{ circular:true }
-          }
-        },
-        plugins:{ legend:{ display:true } }
-      }
-    });
-  }
+    // Axes + labels
+    let axes = "";
+    let labels = "";
+    for(let i=0; i<dims.length; i++){
+      const a = angleStart + i*step;
+      const p1 = polarToXY(cx, cy, 0, a);
+      const p2 = polarToXY(cx, cy, maxR, a);
+      axes += `<line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>`;
 
-  function buildChartCompare(a,b){
-    const labels = ["Customer","Operational","Quality","Resource","Commercial"];
-    if(chart) chart.destroy();
+      const lp = polarToXY(cx, cy, maxR + 22, a);
+      labels += `<text x="${lp.x}" y="${lp.y}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="rgba(255,231,215,0.95)">${dims[i]}</text>`;
+    }
 
-    chart = new Chart(ctx, {
-      type:"radar",
-      data:{
-        labels,
-        datasets:[
-          { label: a.name || "Product A", data: [a.customer,a.operational,a.quality,a.resource,a.commercial], borderWidth:2, pointRadius:3, fill:false },
-          { label: b.name || "Product B", data: [b.customer,b.operational,b.quality,b.resource,b.commercial], borderWidth:2, pointRadius:3, fill:false }
-        ]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, showLabelBackdrop:false }, grid:{ circular:true } } },
-        plugins:{ legend:{ display:true } }
-      }
-    });
-  }
+    // Series polygons
+    const mainPts = valuesToPoints(series.values);
+    const main = `
+      <polygon points="${mainPts}" fill="rgba(242,106,33,0.22)" stroke="rgba(242,106,33,0.95)" stroke-width="2"/>
+      ${series.values.map((v,i)=>{
+        const a = angleStart + i*step;
+        const rr = (clamp(v,0,5)/5)*maxR;
+        const p = polarToXY(cx,cy,rr,a);
+        return `<circle cx="${p.x}" cy="${p.y}" r="3.2" fill="rgba(242,106,33,0.95)"/>`;
+      }).join("")}
+    `;
 
-  // ---------- Chips + tables ----------
-  function renderChipsSingle(data){
-    const chipWrap = byId("chips");
-    chipWrap.innerHTML = "";
+    let bench = "";
+    if(opts && opts.benchmarkSeries){
+      const bPts = valuesToPoints(opts.benchmarkSeries.values);
+      bench = `
+        <polygon points="${bPts}" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2" stroke-dasharray="7 5"/>
+      `;
+    }
 
-    const items = [
-      ["Customer", data.customer],
-      ["Operational", data.operational],
-      ["Quality", data.quality],
-      ["Resource", data.resource],
-      ["Commercial", data.commercial]
-    ];
-
-    items.forEach(([name, val]) => {
-      const c = classifyScore(val);
-      const chip = document.createElement("div");
-      chip.className = "chip " + (c==="strong" ? "good" : (c==="weak" ? "bad" : "warn"));
-      chip.textContent = `${name}: ${val}/5`;
-      chipWrap.appendChild(chip);
-    });
-
-    const gateChip = document.createElement("div");
-    gateChip.className = "chip " + (data.brandGate==="yes" ? "good" : (data.brandGate==="no" ? "bad" : "warn"));
-    gateChip.textContent = `Brand Gate: ${brandGateLabel(data.brandGate)}`;
-    chipWrap.appendChild(gateChip);
-
-    const decChip = document.createElement("div");
-    decChip.className = "chip";
-    decChip.textContent = `Decision: ${decisionLabel(data.decision)}`;
-    chipWrap.appendChild(decChip);
-
-    const dirChip = document.createElement("div");
-    dirChip.className = "chip";
-    dirChip.textContent = `Direction: ${directionLabel(data.direction)}`;
-    chipWrap.appendChild(dirChip);
-
-    const roleChip = document.createElement("div");
-    roleChip.className = "chip";
-    roleChip.textContent = `Role: ${roleLabel(data.strategicRole)}`;
-    chipWrap.appendChild(roleChip);
-  }
-
-  function scoreTableSingle(data){
-    const rows = [
-      ["Customer Need & Insight", data.customer],
-      ["Operational Fit", data.operational],
-      ["Food Quality & Digestibility", data.quality],
-      ["Resource Impact", data.resource],
-      ["Commercial Strength", data.commercial],
-      ["Brand Gate", brandGateLabel(data.brandGate)],
-      ["Decision", decisionLabel(data.decision)],
-      ["Strategic role", roleLabel(data.strategicRole)],
-      ["Direction of travel", directionLabel(data.direction)]
-    ];
-
-    return `<ul>${rows.map(r => `<li><strong>${r[0]}:</strong> ${r[1]}</li>`).join("")}</ul>`;
-  }
-
-  function escapeHtml(str){
-    return str.replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
-  }
-
-  function notesOutputSingle(data){
-    const cond = (data.conditions || "").trim();
-    const notes = (data.notes || "").trim();
-    const ingred = (data.ingredients || "").trim();
-    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
+    const title = opts?.title ? `<text x="${cx}" y="20" text-anchor="middle" font-size="13" fill="rgba(157,176,198,0.95)">${escapeHtml(opts.title)}</text>` : "";
 
     return `
-      <p><strong>Product type:</strong> ${typeTxt}</p>
-      <p><strong>Strategic role:</strong> ${roleLabel(data.strategicRole)} • <strong>Decision:</strong> ${decisionLabel(data.decision)} • <strong>Direction:</strong> ${directionLabel(data.direction)}</p>
-      ${data.processNotes ? `<p><strong>Process notes:</strong> ${escapeHtml(data.processNotes)}</p>` : `<p><strong>Process notes:</strong> None recorded.</p>`}
-      ${ingred ? `<p><strong>Ingredients (at time of review):</strong><br>${escapeHtml(ingred).replace(/\n/g,"<br>")}</p>` : `<p><strong>Ingredients (at time of review):</strong> None recorded.</p>`}
-      ${cond ? `<p><strong>Conditions / required changes:</strong><br>${escapeHtml(cond).replace(/\n/g,"<br>")}</p>` : `<p><strong>Conditions / required changes:</strong> None recorded.</p>`}
-      ${notes ? `<p><strong>Notes:</strong><br>${escapeHtml(notes).replace(/\n/g,"<br>")}</p>` : `<p><strong>Notes:</strong> None recorded.</p>`}
+      <svg id="radarSVG" xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ${size} ${size}" role="img" aria-label="Spider chart">
+        <rect x="0" y="0" width="${size}" height="${size}" rx="16" ry="16" fill="rgba(0,0,0,0.12)" stroke="rgba(255,255,255,0.08)"/>
+        ${title}
+        <g>${grid}${axes}${labels}</g>
+        <g>${bench}${main}</g>
+
+        <g>
+          <text x="${size-14}" y="${size-14}" text-anchor="end" font-size="11" fill="rgba(157,176,198,0.85)">Scale: 1–5</text>
+        </g>
+      </svg>
     `;
   }
 
-  // ---------- Insights logic ----------
+  // ---------- Data getters ----------
   function getSingleData(){
     return {
       productType: byId("productType").value,
@@ -931,14 +798,113 @@
       conditions: byId("conditions").value,
       notes: byId("notes").value,
 
-      showBenchmark: byId("showBenchmark") ? byId("showBenchmark").checked : false,
-      benchmarkName: byId("benchmarkName") ? byId("benchmarkName").value.trim() : "Best of Hobbs House Bakery",
-      bmkCustomer: byId("bmkCustomer") ? +byId("bmkCustomer").value : 5,
-      bmkOperational: byId("bmkOperational") ? +byId("bmkOperational").value : 5,
-      bmkQuality: byId("bmkQuality") ? +byId("bmkQuality").value : 5,
-      bmkResource: byId("bmkResource") ? +byId("bmkResource").value : 5,
-      bmkCommercial: byId("bmkCommercial") ? +byId("bmkCommercial").value : 5
+      showBenchmark: byId("showBenchmark").checked,
+      benchmarkName: byId("benchmarkName").value.trim() || "Best of Hobbs House Bakery",
+      bmkCustomer: +byId("bmkCustomer").value,
+      bmkOperational: +byId("bmkOperational").value,
+      bmkQuality: +byId("bmkQuality").value,
+      bmkResource: +byId("bmkResource").value,
+      bmkCommercial: +byId("bmkCommercial").value
     };
+  }
+
+  function getCompareData(){
+    return {
+      productType: byId("productType").value,
+      a: {
+        name: byId("nameA").value.trim(),
+        customer:+byId("aCustomer").value,
+        operational:+byId("aOperational").value,
+        quality:+byId("aQuality").value,
+        resource:+byId("aResource").value,
+        commercial:+byId("aCommercial").value,
+        brandGate: byId("aBrand").value,
+        notes: byId("aNotes").value
+      },
+      b: {
+        name: byId("nameB").value.trim(),
+        customer:+byId("bCustomer").value,
+        operational:+byId("bOperational").value,
+        quality:+byId("bQuality").value,
+        resource:+byId("bResource").value,
+        commercial:+byId("bCommercial").value,
+        brandGate: byId("bBrand").value,
+        notes: byId("bNotes").value
+      }
+    };
+  }
+
+  // ---------- Outputs ----------
+  function renderChipsSingle(data){
+    const chipWrap = byId("chips");
+    chipWrap.innerHTML = "";
+
+    const items = [
+      ["Customer", data.customer],
+      ["Operational", data.operational],
+      ["Quality", data.quality],
+      ["Resource", data.resource],
+      ["Commercial", data.commercial]
+    ];
+
+    for(const [name,val] of items){
+      const c = classifyScore(val);
+      const chip = document.createElement("div");
+      chip.className = "chip " + (c==="strong" ? "good" : (c==="weak" ? "bad" : "warn"));
+      chip.textContent = `${name}: ${val}/5`;
+      chipWrap.appendChild(chip);
+    }
+
+    const gateChip = document.createElement("div");
+    gateChip.className = "chip " + (data.brandGate==="yes" ? "good" : (data.brandGate==="no" ? "bad" : "warn"));
+    gateChip.textContent = `Brand Gate: ${brandGateLabel(data.brandGate)}`;
+    chipWrap.appendChild(gateChip);
+
+    const d1 = document.createElement("div");
+    d1.className = "chip";
+    d1.textContent = `Decision: ${decisionLabel(data.decision)}`;
+    chipWrap.appendChild(d1);
+
+    const d2 = document.createElement("div");
+    d2.className = "chip";
+    d2.textContent = `Direction: ${directionLabel(data.direction)}`;
+    chipWrap.appendChild(d2);
+
+    const d3 = document.createElement("div");
+    d3.className = "chip";
+    d3.textContent = `Role: ${roleLabel(data.strategicRole)}`;
+    chipWrap.appendChild(d3);
+  }
+
+  function scoreTableSingle(data){
+    const rows = [
+      ["Customer Need & Insight", data.customer],
+      ["Operational Fit", data.operational],
+      ["Food Quality & Digestibility", data.quality],
+      ["Resource Impact", data.resource],
+      ["Commercial Strength", data.commercial],
+      ["Brand Gate", brandGateLabel(data.brandGate)],
+      ["Decision", decisionLabel(data.decision)],
+      ["Strategic role", roleLabel(data.strategicRole)],
+      ["Direction of travel", directionLabel(data.direction)]
+    ];
+    return `<ul>${rows.map(r => `<li><strong>${r[0]}:</strong> ${escapeHtml(r[1])}</li>`).join("")}</ul>`;
+  }
+
+  function notesOutputSingle(data){
+    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
+    const ingred = (data.ingredients||"").trim();
+    const cond = (data.conditions||"").trim();
+    const notes = (data.notes||"").trim();
+
+    return `
+      <p><strong>Product type:</strong> ${escapeHtml(typeTxt)}</p>
+      <p><strong>Strategic role:</strong> ${escapeHtml(roleLabel(data.strategicRole))} • <strong>Decision:</strong> ${escapeHtml(decisionLabel(data.decision))} • <strong>Direction:</strong> ${escapeHtml(directionLabel(data.direction))}</p>
+      <p><strong>Process notes:</strong> ${data.processNotes ? escapeHtml(data.processNotes) : "None recorded."}</p>
+      <p><strong>Ingredients (at time of review):</strong><br>${ingred ? escapeHtml(ingred).replace(/\n/g,"<br>") : "None recorded."}</p>
+      <p><strong>Conditions / required changes:</strong><br>${cond ? escapeHtml(cond).replace(/\n/g,"<br>") : "None recorded."}</p>
+      <p><strong>Notes:</strong><br>${notes ? escapeHtml(notes).replace(/\n/g,"<br>") : "None recorded."}</p>
+    `;
   }
 
   function summarySingle(data){
@@ -956,10 +922,10 @@
     const g = typeGuidance[data.productType] || typeGuidance.other;
 
     let lines = [];
-    lines.push(`<p><strong>Decision:</strong> ${decisionLabel(data.decision)} • <strong>Strategic role:</strong> ${roleLabel(data.strategicRole)} • <strong>Direction:</strong> ${directionLabel(data.direction)}</p>`);
+    lines.push(`<p><strong>Decision:</strong> ${escapeHtml(decisionLabel(data.decision))} • <strong>Strategic role:</strong> ${escapeHtml(roleLabel(data.strategicRole))} • <strong>Direction:</strong> ${escapeHtml(directionLabel(data.direction))}</p>`);
 
     if(data.brandGate === "no"){
-      lines.push(`<p><strong>${productLabel}</strong> fails the Brand Gate right now. Treat this as a re-work / repositioning job before we go further.</p>`);
+      lines.push(`<p><strong>${productLabel}</strong> fails the Brand Gate right now. Treat this as a rework/repositioning job before we go further.</p>`);
     } else if(data.brandGate === "conditions"){
       lines.push(`<p><strong>${productLabel}</strong> is broadly on track, but there are conditions to fix before we’d stand behind it confidently.</p>`);
     } else {
@@ -969,7 +935,7 @@
     if(strong.length){
       lines.push(`<p><strong>Key strengths:</strong> ${strong.map(s => s.name).join(", ")}.</p>`);
     } else {
-      lines.push(`<p><strong>No clear spikes</strong> yet — this looks balanced but not distinctive. That’s fine for some products, but it may not be memorable.</p>`);
+      lines.push(`<p><strong>No clear spikes</strong> yet — balanced, but not distinctive. That’s fine for some products, but it may not be memorable.</p>`);
     }
 
     if(weak.length){
@@ -978,7 +944,7 @@
       lines.push(`<p><strong>No major red flags</strong> (nothing scoring 1–2). Improvements can be incremental rather than urgent.</p>`);
     }
 
-    lines.push(`<p><strong>Type context:</strong> ${g.focus}</p>`);
+    lines.push(`<p><strong>Type context:</strong> ${escapeHtml(g.focus)}</p>`);
     lines.push(`<p><strong>Useful reminder:</strong> Not every product needs to be strong in every area. What matters is that the trade-offs are conscious, and directionally we’re moving the right way.</p>`);
 
     return lines.join("");
@@ -988,7 +954,6 @@
     const actions = [];
     const weak = (v) => v <= 2;
 
-    // Decision first
     if(data.decision === "park"){
       actions.push("Park it for now: capture what would need to change for this to become viable, and what signal would trigger a revisit.");
     }
@@ -999,14 +964,12 @@
       actions.push("Proceed with conditions: write the conditions clearly, assign owners, and set a review date.");
     }
 
-    // Brand Gate
     if(data.brandGate === "no"){
       actions.push("Agree what would make us proud of it (ingredients, process, story, or customer fit). If that can’t be achieved, treat it as a conscious exception and name it as such.");
     } else if(data.brandGate === "conditions"){
       actions.push("Write the conditions clearly (one line each) and assign owners + deadlines. Keep it specific: ‘swap X’, ‘add Y ferment’, ‘remove Z’, ‘change pack format’.");
     }
 
-    // Lens nudges
     if(weak(data.customer)) actions.push("Strengthen the brief: who is it for, what problem does it solve, and what does success look like (taste / performance / price / shelf life)?");
     if(weak(data.operational)) actions.push("Make it more repeatable: simplify method, reduce fragility, or adjust timings so it fits the bakery rhythm.");
     if(weak(data.quality)) actions.push("Find a ‘better not different’ improvement: longer fermentation, cleaner fat choice, modest wholegrain uplift, or remove unnecessary additives (without breaking the product’s role).");
@@ -1022,40 +985,14 @@
     return `<ul>${actions.map(a => `<li>${escapeHtml(a)}</li>`).join("")}</ul>`;
   }
 
-  // ---------- Compare mode ----------
-  function getCompareData(){
-    return {
-      productType: byId("productType").value,
-      a: {
-        name: byId("nameA").value.trim(),
-        customer: +byId("aCustomer").value,
-        operational: +byId("aOperational").value,
-        quality: +byId("aQuality").value,
-        resource: +byId("aResource").value,
-        commercial: +byId("aCommercial").value,
-        brandGate: byId("aBrand").value,
-        notes: byId("aNotes").value
-      },
-      b: {
-        name: byId("nameB").value.trim(),
-        customer: +byId("bCustomer").value,
-        operational: +byId("bOperational").value,
-        quality: +byId("bQuality").value,
-        resource: +byId("bResource").value,
-        commercial: +byId("bCommercial").value,
-        brandGate: byId("bBrand").value,
-        notes: byId("bNotes").value
-      }
-    };
-  }
-
+  // Compare summaries
   function compareSummaryBlock(label, d){
     const scores = [
-      ["Customer need", d.customer],
-      ["Operational fit", d.operational],
-      ["Quality/digestibility", d.quality],
-      ["Resource impact", d.resource],
-      ["Commercial strength", d.commercial]
+      ["Customer", d.customer],
+      ["Operational", d.operational],
+      ["Quality", d.quality],
+      ["Resource", d.resource],
+      ["Commercial", d.commercial]
     ];
     const strong = scores.filter(s => s[1] >= 4).map(s => s[0]);
     const weak = scores.filter(s => s[1] <= 2).map(s => s[0]);
@@ -1064,29 +1001,28 @@
     return `
       <div class="card" style="box-shadow:none; background: rgba(0,0,0,.12); border:1px solid rgba(255,255,255,.10)">
         <div class="miniTitle">${name}</div>
-        <p><strong>Brand Gate:</strong> ${brandGateLabel(d.brandGate)}</p>
-        ${strong.length ? `<p><strong>Strengths:</strong> ${strong.join(", ")}.</p>` : `<p><strong>Strengths:</strong> none obvious yet.</p>`}
-        ${weak.length ? `<p><strong>Gaps:</strong> ${weak.join(", ")}.</p>` : `<p><strong>Gaps:</strong> no major red flags.</p>`}
+        <p><strong>Brand Gate:</strong> ${escapeHtml(brandGateLabel(d.brandGate))}</p>
+        <p><strong>Strengths:</strong> ${strong.length ? strong.join(", ") : "none obvious yet"}.</p>
+        <p><strong>Gaps:</strong> ${weak.length ? weak.join(", ") : "no major red flags"}.</p>
         ${d.notes.trim() ? `<p><strong>Notes:</strong><br>${escapeHtml(d.notes).replace(/\n/g,"<br>")}</p>` : ``}
       </div>
     `;
   }
 
   function compareActions(a,b,productType){
-    const dims = [
-      ["Customer Need & Insight","customer"],
-      ["Operational Fit","operational"],
-      ["Food Quality & Digestibility","quality"],
-      ["Resource Impact","resource"],
-      ["Commercial Strength","commercial"]
+    const dimsK = [
+      ["Customer", "customer"],
+      ["Operational", "operational"],
+      ["Quality", "quality"],
+      ["Resource", "resource"],
+      ["Commercial", "commercial"]
     ];
-
     const winsA = [], winsB = [], ties = [];
-    dims.forEach(([name,key]) => {
-      if(a[key] > b[key]) winsA.push(name);
-      else if(b[key] > a[key]) winsB.push(name);
+    for(const [name,k] of dimsK){
+      if(a[k] > b[k]) winsA.push(name);
+      else if(b[k] > a[k]) winsB.push(name);
       else ties.push(name);
-    });
+    }
 
     const g = typeGuidance[productType] || typeGuidance.other;
     const recs = [];
@@ -1103,7 +1039,7 @@
     if(ties.length) recs.push(`Similar on: ${ties.join(", ")}.`);
 
     recs.push(g.focus);
-    recs.push("If this is a recipe change decision, keep the product’s job the same and improve one thing at a time (so we know what actually made it better).");
+    recs.push("If this is a recipe-change decision, keep the product’s job the same and improve one thing at a time (so we know what actually made it better).");
 
     return `<ul>${recs.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
   }
@@ -1111,7 +1047,15 @@
   // ---------- Render ----------
   function renderSingle(){
     const data = getSingleData();
-    buildChartSingle(data);
+
+    const series = { name: data.productName || "Product", values: [data.customer, data.operational, data.quality, data.resource, data.commercial] };
+    const opts = { title: series.name };
+    if(data.showBenchmark){
+      opts.benchmarkSeries = { name: data.benchmarkName, values: [data.bmkCustomer, data.bmkOperational, data.bmkQuality, data.bmkResource, data.bmkCommercial] };
+      opts.title = `${series.name} (with benchmark overlay)`;
+    }
+
+    byId("chartHolder").innerHTML = buildRadarSVG(series, opts);
     renderChipsSingle(data);
 
     byId("summary").innerHTML = summarySingle(data);
@@ -1122,34 +1066,53 @@
 
   function renderCompare(){
     const data = getCompareData();
-    buildChartCompare(data.a, data.b);
+    const a = data.a, b = data.b;
+
+    const series = { name: a.name || "Product A", values: [a.customer,a.operational,a.quality,a.resource,a.commercial] };
+    const opts = { title: "Compare mode (A vs B)" };
+
+    // In compare mode, show A as main and B as dashed overlay
+    opts.benchmarkSeries = { name: b.name || "Product B", values: [b.customer,b.operational,b.quality,b.resource,b.commercial] };
+
+    byId("chartHolder").innerHTML = buildRadarSVG(series, opts);
 
     byId("chips").innerHTML = `
       <div class="chip warn">Mode: Compare</div>
-      <div class="chip">Type: ${byId("productType").options[byId("productType").selectedIndex].text}</div>
+      <div class="chip">A: ${escapeHtml(a.name || "Product A")}</div>
+      <div class="chip">B: ${escapeHtml(b.name || "Product B")}</div>
     `;
 
     byId("summary").innerHTML = `
       <div class="twoCol">
-        ${compareSummaryBlock("Product A", data.a)}
-        ${compareSummaryBlock("Product B", data.b)}
+        ${compareSummaryBlock("Product A", a)}
+        ${compareSummaryBlock("Product B", b)}
       </div>
     `;
 
-    byId("actions").innerHTML = compareActions(data.a, data.b, data.productType);
+    byId("actions").innerHTML = compareActions(a,b,data.productType);
+
+    // reuse a simple score list
+    const scoreList = (x) => `<ul>
+      <li><strong>Customer:</strong> ${x.customer}</li>
+      <li><strong>Operational:</strong> ${x.operational}</li>
+      <li><strong>Quality:</strong> ${x.quality}</li>
+      <li><strong>Resource:</strong> ${x.resource}</li>
+      <li><strong>Commercial:</strong> ${x.commercial}</li>
+      <li><strong>Brand Gate:</strong> ${escapeHtml(brandGateLabel(x.brandGate))}</li>
+    </ul>`;
 
     byId("scoreTable").innerHTML = `
       <div class="twoCol">
-        <div>${scoreTableSingle({customer:data.a.customer, operational:data.a.operational, quality:data.a.quality, resource:data.a.resource, commercial:data.a.commercial, brandGate:data.a.brandGate, decision:"proceed", strategicRole:"core", direction:"stable"})}</div>
-        <div>${scoreTableSingle({customer:data.b.customer, operational:data.b.operational, quality:data.b.quality, resource:data.b.resource, commercial:data.b.commercial, brandGate:data.b.brandGate, decision:"proceed", strategicRole:"core", direction:"stable"})}</div>
+        <div><div class="miniTitle">A</div>${scoreList(a)}</div>
+        <div><div class="miniTitle">B</div>${scoreList(b)}</div>
       </div>
     `;
 
     const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
     byId("notesOut").innerHTML = `
-      <p><strong>Product type:</strong> ${typeTxt}</p>
-      <p><strong>Notes A:</strong><br>${escapeHtml(data.a.notes||"").replace(/\n/g,"<br>") || "None"}</p>
-      <p><strong>Notes B:</strong><br>${escapeHtml(data.b.notes||"").replace(/\n/g,"<br>") || "None"}</p>
+      <p><strong>Product type:</strong> ${escapeHtml(typeTxt)}</p>
+      <p><strong>Notes A:</strong><br>${escapeHtml(a.notes||"None") .replace(/\n/g,"<br>")}</p>
+      <p><strong>Notes B:</strong><br>${escapeHtml(b.notes||"None") .replace(/\n/g,"<br>")}</p>
     `;
   }
 
@@ -1158,7 +1121,6 @@
   const tabCompare = byId("tabCompare");
   const singleInputs = byId("singleInputs");
   const compareInputs = byId("compareInputs");
-
   let mode = "single";
 
   function setMode(next){
@@ -1168,19 +1130,19 @@
     tabCompare.classList.toggle("active", !isSingle);
     tabSingle.setAttribute("aria-selected", isSingle);
     tabCompare.setAttribute("aria-selected", !isSingle);
-
     singleInputs.classList.toggle("hidden", !isSingle);
     compareInputs.classList.toggle("hidden", isSingle);
 
-    if(isSingle) renderSingle();
-    else renderCompare();
+    if(isSingle) renderSingle(); else renderCompare();
   }
 
   tabSingle.addEventListener("click", () => setMode("single"));
   tabCompare.addEventListener("click", () => setMode("compare"));
+  byId("productType").addEventListener("change", () => { if(mode==="single") renderSingle(); else renderCompare(); });
 
   // ---------- Buttons ----------
   byId("btnGenerate").addEventListener("click", renderSingle);
+  byId("btnGenerateCompare").addEventListener("click", renderCompare);
 
   byId("btnReset").addEventListener("click", () => {
     byId("productType").value = "retail_loaf";
@@ -1190,32 +1152,35 @@
     byId("direction").value = "stable";
     byId("ingredients").value = "";
     byId("processNotes").value = "";
+
     byId("sCustomer").value = 3; byId("vCustomer").textContent = 3;
     byId("sOperational").value = 3; byId("vOperational").textContent = 3;
     byId("sQuality").value = 3; byId("vQuality").textContent = 3;
     byId("sResource").value = 3; byId("vResource").textContent = 3;
     byId("sCommercial").value = 3; byId("vCommercial").textContent = 3;
+
     byId("brandGate").value = "yes";
     byId("conditions").value = "";
     byId("notes").value = "";
 
-    if(byId("showBenchmark")) byId("showBenchmark").checked = false;
-    if(byId("benchmarkFields")) byId("benchmarkFields").classList.add("hidden");
-    if(byId("benchmarkName")) byId("benchmarkName").value = "Best of Hobbs House Bakery";
-    if(byId("bmkCustomer")) { byId("bmkCustomer").value = 5; byId("vbmkCustomer").textContent = 5; }
-    if(byId("bmkOperational")) { byId("bmkOperational").value = 5; byId("vbmkOperational").textContent = 5; }
-    if(byId("bmkQuality")) { byId("bmkQuality").value = 5; byId("vbmkQuality").textContent = 5; }
-    if(byId("bmkResource")) { byId("bmkResource").value = 5; byId("vbmkResource").textContent = 5; }
-    if(byId("bmkCommercial")) { byId("bmkCommercial").value = 5; byId("vbmkCommercial").textContent = 5; }
+    byId("showBenchmark").checked = false;
+    syncBenchmarkVisibility();
+    byId("benchmarkName").value = "Best of Hobbs House Bakery";
+    byId("bmkCustomer").value = 5; byId("vbmkCustomer").textContent = 5;
+    byId("bmkOperational").value = 5; byId("vbmkOperational").textContent = 5;
+    byId("bmkQuality").value = 5; byId("vbmkQuality").textContent = 5;
+    byId("bmkResource").value = 5; byId("vbmkResource").textContent = 5;
+    byId("bmkCommercial").value = 5; byId("vbmkCommercial").textContent = 5;
 
     renderSingle();
   });
 
-  byId("btnGenerateCompare").addEventListener("click", renderCompare);
-
   byId("btnResetCompare").addEventListener("click", () => {
     byId("productType").value = "hospitality_bun";
-    ["nameA","nameB","aNotes","bNotes"].forEach(id => byId(id).value = "");
+    byId("nameA").value = "";
+    byId("nameB").value = "";
+    byId("aNotes").value = "";
+    byId("bNotes").value = "";
     ["aCustomer","aOperational","aQuality","aResource","aCommercial","bCustomer","bOperational","bQuality","bResource","bCommercial"].forEach(id => byId(id).value = 3);
     ["vaCustomer","vaOperational","vaQuality","vaResource","vaCommercial","vbCustomer","vbOperational","vbQuality","vbResource","vbCommercial"].forEach(id => byId(id).textContent = 3);
     byId("aBrand").value = "yes";
@@ -1223,13 +1188,8 @@
     renderCompare();
   });
 
-  byId("productType").addEventListener("change", () => {
-    if(mode === "single") renderSingle();
-    else renderCompare();
-  });
-
-  // ---------- Save/Load (LocalStorage) ----------
-  const LS_KEY = "hhb_product_balance_v2";
+  // ---------- Save/Load + JSON ----------
+  const LS_KEY = "hhb_product_balance_offline_v1";
 
   function currentState(){
     if(mode === "single") return { mode, ...getSingleData() };
@@ -1239,7 +1199,6 @@
 
   function applyState(state){
     if(!state || !state.mode) return;
-
     setMode(state.mode);
     byId("productType").value = state.productType || "retail_loaf";
 
@@ -1261,16 +1220,15 @@
       byId("conditions").value = state.conditions || "";
       byId("notes").value = state.notes || "";
 
-      if(byId("showBenchmark")){
-        byId("showBenchmark").checked = !!state.showBenchmark;
-        syncBenchmarkVisibility();
-      }
-      if(byId("benchmarkName")) byId("benchmarkName").value = state.benchmarkName || "Best of Hobbs House Bakery";
-      if(byId("bmkCustomer")){ byId("bmkCustomer").value = state.bmkCustomer ?? 5; byId("vbmkCustomer").textContent = byId("bmkCustomer").value; }
-      if(byId("bmkOperational")){ byId("bmkOperational").value = state.bmkOperational ?? 5; byId("vbmkOperational").textContent = byId("bmkOperational").value; }
-      if(byId("bmkQuality")){ byId("bmkQuality").value = state.bmkQuality ?? 5; byId("vbmkQuality").textContent = byId("bmkQuality").value; }
-      if(byId("bmkResource")){ byId("bmkResource").value = state.bmkResource ?? 5; byId("vbmkResource").textContent = byId("bmkResource").value; }
-      if(byId("bmkCommercial")){ byId("bmkCommercial").value = state.bmkCommercial ?? 5; byId("vbmkCommercial").textContent = byId("bmkCommercial").value; }
+      byId("showBenchmark").checked = !!state.showBenchmark;
+      syncBenchmarkVisibility();
+      byId("benchmarkName").value = state.benchmarkName || "Best of Hobbs House Bakery";
+
+      byId("bmkCustomer").value = state.bmkCustomer ?? 5; byId("vbmkCustomer").textContent = byId("bmkCustomer").value;
+      byId("bmkOperational").value = state.bmkOperational ?? 5; byId("vbmkOperational").textContent = byId("bmkOperational").value;
+      byId("bmkQuality").value = state.bmkQuality ?? 5; byId("vbmkQuality").textContent = byId("bmkQuality").value;
+      byId("bmkResource").value = state.bmkResource ?? 5; byId("vbmkResource").textContent = byId("bmkResource").value;
+      byId("bmkCommercial").value = state.bmkCommercial ?? 5; byId("vbmkCommercial").textContent = byId("bmkCommercial").value;
 
       renderSingle();
     } else {
@@ -1311,7 +1269,6 @@
     alert("Loaded.");
   });
 
-  // ---------- Export / Import JSON ----------
   byId("btnExportJSON").addEventListener("click", () => {
     const blob = new Blob([JSON.stringify(currentState(), null, 2)], { type:"application/json" });
     const url = URL.createObjectURL(blob);
@@ -1328,8 +1285,7 @@
     if(!file) return;
     const text = await file.text();
     try{
-      const state = JSON.parse(text);
-      applyState(state);
+      applyState(JSON.parse(text));
       alert("Imported.");
     }catch(err){
       alert("Could not import that JSON file.");
@@ -1338,112 +1294,30 @@
     }
   });
 
-  // ---------- Export PNG / PDF ----------
-  byId("btnPNG").addEventListener("click", async () => {
-    const el = byId("exportArea");
-    const canvas = await html2canvas(el, { backgroundColor: null, scale: 2 });
-    const link = document.createElement("a");
-    link.download = `hhb-product-balance-${new Date().toISOString().slice(0,10)}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
+  // ---------- Download chart SVG ----------
+  byId("btnDownloadSVG").addEventListener("click", () => {
+    const svg = byId("radarSVG");
+    if(!svg) return alert("No chart yet — click Generate first.");
+    const serializer = new XMLSerializer();
+    const svgText = serializer.serializeToString(svg);
+
+    const blob = new Blob([svgText], {type:"image/svg+xml;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `hhb-spider-chart-${new Date().toISOString().slice(0,10)}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
   });
 
-  byId("btnPDF").addEventListener("click", async () => {
-    const report = document.createElement("div");
-    report.style.padding = "18px";
-    report.style.width = "900px";
-    report.style.fontFamily = "system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
-    report.style.color = "#111";
-    report.style.background = "#fff";
-
-    const typeTxt = byId("productType").options[byId("productType").selectedIndex].text;
-    const title = (mode === "single")
-      ? (byId("productName").value.trim() || "Product profile")
-      : "Product comparison";
-
-    report.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px;">
-        <div>
-          <div style="font-weight:800; font-size:18px;">Hobbs House Bakery – Product Balance Framework</div>
-          <div style="margin-top:4px; font-size:13px; color:#444;"><strong>${escapeHtml(title)}</strong> • ${escapeHtml(typeTxt)} • ${new Date().toLocaleDateString("en-GB")}</div>
-        </div>
-        <div style="width:46px; height:46px; border-radius:12px; background: linear-gradient(135deg, #f26a21, #ff8a3d, #ffb27a);"></div>
-      </div>
-      <hr style="border:0; border-top:1px solid #ddd; margin:12px 0 14px;">
-      <div id="pdfChart" style="margin: 0 0 12px 0;"></div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-        <div>
-          <div style="font-weight:800; margin-bottom:6px;">What this tells us</div>
-          <div id="pdfSummary" style="font-size:12.5px; color:#333;"></div>
-        </div>
-        <div>
-          <div style="font-weight:800; margin-bottom:6px;">Suggested next steps</div>
-          <div id="pdfActions" style="font-size:12.5px; color:#333;"></div>
-        </div>
-      </div>
-      <hr style="border:0; border-top:1px solid #ddd; margin:12px 0 10px;">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-        <div>
-          <div style="font-weight:800; margin-bottom:6px;">Scores</div>
-          <div id="pdfScores" style="font-size:12.5px; color:#333;"></div>
-        </div>
-        <div>
-          <div style="font-weight:800; margin-bottom:6px;">Notes</div>
-          <div id="pdfNotes" style="font-size:12.5px; color:#333;"></div>
-        </div>
-      </div>
-    `;
-
-    const exportCanvas = await html2canvas(byId("exportArea"), { backgroundColor: "#ffffff", scale: 2 });
-    const imgData = exportCanvas.toDataURL("image/png");
-    const img = document.createElement("img");
-    img.src = imgData;
-    img.style.width = "100%";
-    img.style.border = "1px solid #eee";
-    img.style.borderRadius = "10px";
-    report.querySelector("#pdfChart").appendChild(img);
-
-    report.querySelector("#pdfSummary").innerHTML = byId("summary").innerHTML;
-    report.querySelector("#pdfActions").innerHTML = byId("actions").innerHTML;
-    report.querySelector("#pdfScores").innerHTML = byId("scoreTable").innerHTML;
-    report.querySelector("#pdfNotes").innerHTML = byId("notesOut").innerHTML;
-
-    document.body.appendChild(report);
-    const canvas = await html2canvas(report, { backgroundColor: "#ffffff", scale: 2 });
-    document.body.removeChild(report);
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation:"p", unit:"pt", format:"a4" });
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    const imgW = pageWidth;
-    const imgH = canvas.height * (imgW / canvas.width);
-
-    let y = 0;
-    let remaining = imgH;
-
-    const imgPDF = canvas.toDataURL("image/png");
-
-    while(remaining > 0){
-      pdf.addImage(imgPDF, "PNG", 0, y, imgW, imgH);
-      remaining -= pageHeight;
-      if(remaining > 0){
-        pdf.addPage();
-        y -= pageHeight;
-      }
-    }
-    pdf.save(`hhb-product-balance-${new Date().toISOString().slice(0,10)}.pdf`);
+  // ---------- Print / Save as PDF ----------
+  byId("btnPrintPDF").addEventListener("click", () => {
+    window.print();
   });
 
   // ---------- Init ----------
-  function init(){
-    const missing = depsOk();
-    if(missing.length) showDepError(missing);
-    setMode("single");
-    if(typeof Chart !== "undefined") renderSingle();
-  }
-  init();
+  setMode("single");
+  renderSingle();
 </script>
 </body>
 </html>
